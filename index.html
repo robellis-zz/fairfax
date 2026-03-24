@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garage Force Fairfax — Installer Portal</title>
+<meta name="description" content="Internal portal for Garage Force Fairfax installers. Training materials, documents, and resources.">
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="./base.css">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="login-gate" class="login-gate">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="./logo.jpg" alt="Garage Force of Fairfax" width="72" height="72" style="border-radius:50%">
+    </div>
+    <h1 class="login-title">Garage Force Fairfax</h1>
+    <p class="login-subtitle">Installer Portal</p>
+    <form id="login-form" class="login-form">
+      <label class="login-field">
+        <svg class="login-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <input type="text" id="username" placeholder="Username" autocomplete="username" required>
+      </label>
+      <label class="login-field">
+        <svg class="login-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required>
+      </label>
+      <p id="pw-error" class="login-error" hidden>Invalid username or password.</p>
+      <button type="submit" class="login-btn">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until login) -->
+<div id="app" hidden>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <button id="menu-toggle" class="menu-btn" aria-label="Toggle menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-brand">
+        <img src="./logo.jpg" alt="Garage Force of Fairfax" width="30" height="30" style="border-radius:50%">
+        GF Fairfax
+      </span>
+    </div>
+    <div class="topbar-right">
+      <span id="user-greeting" class="user-greeting"></span>
+      <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode">
+        <svg id="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg id="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+      </button>
+      <button id="logout-btn" class="icon-btn" aria-label="Sign out" title="Sign out">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="tab-bar">
+  <button class="tab active" data-tab="training">Training</button>
+  <button class="tab" data-tab="documents">Documents</button>
+  <button class="tab" data-tab="links">Links</button>
+  <button class="tab" data-tab="schedule">Schedule</button>
+  <button class="tab tab-admin" data-tab="admin" id="admin-tab" hidden>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Manage Team
+  </button>
+</nav>
+
+<!-- ===================== TRAINING TAB ===================== -->
+<main>
+<section id="training" class="tab-panel active">
+  <div class="section-header">
+    <h2>Training Materials</h2>
+    <p class="section-desc">System-specific training resources, videos, and documentation from Garage Force corporate.</p>
+  </div>
+
+  <div class="category">
+<button class="category-header">
+<span class="category-name">Chip System</span>
+<span class="category-count">15 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_57746653668c335e438c7b6.82024153.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Chip Coverage Chart</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_22750865868c333558bf161.90516235.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Making Sample Boards</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_165023523568c3341ea57297.27849844.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Spot Repairs on Finished Floor Process</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1223602077691f47b566b417.78514952.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Basecoat Color Suggestions</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_80657415566f17f08bb9ae4.46472834.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Chip Color Palette</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_17412638856621693da82091.47370612.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Full Chip Install Process</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_100565705966f35e90a5aae3.23669480.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Specialty Chip Blends (Internal)</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=aPqHaQ6SphQ" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">400 sq. ft. Chip Installation</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=tW8Z-8nvPdg" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Basecoat Application</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=eWj7uZE03pg" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Basecoat and Chip</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=kMiejKs0whA" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Topcoat Application</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=qk2uxYz7DZg" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Cove Installation</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=2uTlKe_8HFk" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Stonebridge Series Broadcast</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=e3XpaRQBwnA" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Spot Repairs</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_175635775468c19933952fe7.53283977.mp4" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Verticals</span><span class="doc-detail">Video</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Metallic System</span>
+<span class="category-count">5 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1680711607699dcc1fad1be5.09268591.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Metallic Floor Process</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/metallic_pigment.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Metallic Pigments</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=KvvqVQTUEOY" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">"Puddle" Method Metallic</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=4hpS9ecdBJ8" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Marble Effect Metallic</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=rau5ElOoxfc" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Multi-Color Metallic (T-Bar)</span><span class="doc-detail">YouTube</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Medici System</span>
+<span class="category-count">1 item</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_313185879676185273577c5.97492347.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Medici Floor Process</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Grind & Seal</span>
+<span class="category-count">2 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_14943362616760988097caf5.18138381.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Grind & Seal System</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=W0C0Yts0QZw" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Grind & Seal</span><span class="doc-detail">YouTube</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Concrete Testing</span>
+<span class="category-count">8 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_9108889566841ccef5e8ec7.64859963.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">PH Testing</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_172380679067d324df112d31.67868880.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">ASTM E1907-04 (Moisture Conditions)</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_52958253967d325098790c5.93526775.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">ASTM F1869-04 (Calcium Chloride)</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_94461973067d325487ab8e9.67973597.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Calcium Chloride Kit Instructions</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_68438176768b6ef317461a7.40266546.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Handheld Meter Moisture Testing</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=UDVRZqjx99M" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">MOH's Hardness Test Process</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=83Zc8oYV1PE" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">PH Pencil Testing Process</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=cfpDbdKERm8" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Wagner Moisture Meter Test</span><span class="doc-detail">YouTube</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Preparation & Repairs</span>
+<span class="category-count">12 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_62878152767ca23bdaaf9a2.91896104.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Concrete Profile Guide</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_208896768868488f29f006c7.69562980.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Crack Repair</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_95982796868e5193e114d19.53597086.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">CSP Levels/Prep Methods</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_87515542668488f45241929.97580215.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Edge Repair</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_9073950996679714d179f95.69649266.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">GF Flexible Joint Filler Coverage Chart</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_183967485669a053b3438671.21913581.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Neutralizing an Acidic Concrete Slab</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_34506408068488599ac07b8.89023049.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Removal of Oil Contamination</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_14322387226830a5bb074424.26310872.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Shotblast vs. Grinding</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_6099304368488f60ab8be9.55120352.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Spalling Repair</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=cPykUUPDgLM" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Flexible Joint Fill</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=8-BpzL7ggZo" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Spalling/Salt Pit Repair</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=tIzTzgKgNQ8" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Crack Repair</span><span class="doc-detail">YouTube</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Grinders</span>
+<span class="category-count">8 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://nationalequipmentdirect.com/resources/?search_term=&resource_product=2228&resource_type=videos" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Helix Grinder</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_113478684166294532ec5a41.85562764.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Lavina Diamond Selection Chart</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_5264947416605ca83531104.67544352.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Lavina L20NEB Electric Floor Grinder Manual</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1132904850673dedb31842c2.94784615.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Lavina L20S7 Electric Floor Grinder Manual</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_714963002664e19cc7f3510.18584787.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">National GP700 Grinder Manual</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1471209392664e1978ddd448.33415369.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">National Helix Grinder Service Manual</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=UDVRZqjx99M" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">MOHs Hardness Test and Diamond Selection</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=PNm23uDbZCQ" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Tooling Applications Guide</span><span class="doc-detail">YouTube</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Shotblasters</span>
+<span class="category-count">7 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_10234403826605c0819a5b58.93890087.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">A95 Service Manual</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_146653789067c5cd29737ab1.17422902.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">BlastPro BP9 110V Schematic Diagram</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_6769784366887a8cd2ce874.11523203.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">BlastPro BP9-110V Owners Manual</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_6732997816605cf1465a078.41743468.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">IMPACTS-S210E_manual</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=uwKsIkTq9jc" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">How to Adjust your A95 Shotblaster Control Cage</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=4L_kKzL0lVI" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">How to Adjust your BP9 Shotblaster Control Cage</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=yoOWG2rm-9A" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Impacts S210E Shotblaster</span><span class="doc-detail">YouTube</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Dust Collectors / Vacuums</span>
+<span class="category-count">7 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_168870996267bcd4351b2b10.34113957.docx" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon doc">DOC</div><div class="doc-info"><span class="doc-name">Replacing Infinity Bag on your Dust Collector</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_64901429467a23312d59c35.81929197.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">DiamaPro SVX2+A Auto Pulsing Dust Collector</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_18626015756605cdd74985f5.83898490.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">DiamaPro SVX2-M HEPA Filtered Vacuum</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1826010859664e182dcbf7c7.36854892.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">National DL2000 Vacuum</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1068295817664e18a7001302.80023211.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">National DL3000 Vacuum</span></div></a>
+</div>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://www.youtube.com/watch?v=9ZqLiu8INu4" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Changing Filter - DL2000</span><span class="doc-detail">YouTube</span></div></a>
+<a href="https://www.youtube.com/watch?v=6ovcgNT7TrE" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Purging Dust Collectors</span><span class="doc-detail">YouTube</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Generators</span>
+<span class="category-count">3 items</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Documents</h4>
+<div class="doc-list">
+<a href="https://support.generac.com/s/topic/0TO5f000001KWfzGAG/portable-generators" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Generac FAQs</span></div></a>
+<a href="https://www.generac.com/home-standby-generators/dealer-locator/" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Generac Service Locator</span></div></a>
+<a href="https://www.generac.com/support/product-info-user-manuals/" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Generac User Manuals</span></div></a>
+</div>
+
+</div>
+</div><div class="category">
+<button class="category-header">
+<span class="category-name">Cyclospartic</span>
+<span class="category-count">1 item</span>
+<span class="category-arrow">›</span>
+</button>
+<div class="category-content" hidden>
+<h4 class="sub-heading">Videos</h4>
+<div class="doc-list">
+<a href="https://vimeo.com/948755422" target="_blank" rel="noopener" class="doc-item vid"><div class="doc-icon video">▶</div><div class="doc-info"><span class="doc-name">Cyclospartic Introduction Video</span><span class="doc-detail">Vimeo</span></div></a>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- ===================== DOCUMENTS TAB ===================== -->
+<section id="documents" class="tab-panel">
+  <div class="section-header">
+    <h2>Documents &amp; Forms</h2>
+    <p class="section-desc">Training documents, tech data sheets, and technical service bulletins.</p>
+  </div>
+
+  <div class="category">
+    <button class="category-header">
+      <span class="category-name">Training Documents</span>
+      <span class="category-count">18 items</span>
+      <span class="category-arrow">›</span>
+    </button>
+    <div class="category-content" hidden>
+      <div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_126926753069a1e091469e42.71389933.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Field Operations Manual</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_118217971667d83844bda426.57843870.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">AlphaCoat Color Chart</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_124679173665e1a7cedcd34.19879494.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">AlphaCoat Coverage Rate Chart</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/alpha_coat_chart.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">AlphaCoat Percentage Chart</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_42634738167ca22ad986bc1.45991258.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Application Temperature Ranges</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_867834451685c564e803268.62053666.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Cove Base Process</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_189813076267f016b1c7b8d0.94500757.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Cyclospartic Best Practices</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_87873336966fed65231a131.08338012.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Dew Point Calculation Process</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/concrete_profile_guide.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Concrete Profile Guide</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/dewpoint_calculation.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Dew Point Calculation</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/ph_testing.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">PH Testing</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/shot_blasting_process.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Shot Blasting Process</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/floor_logo_install.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Floor Logo Installation</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/tarp_setup.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Tarp Setup</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_194995562367d32b1717fdf2.46868321.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Warranty Process</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1239875978683f5b7ea8ee75.74776765.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Garage Force Product List</span></div></a>
+<a href="https://www.gfinstallers.com/documents/training/project_condition_survey.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Project Condition Survey</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_180817396567e3039f5e8631.32989815.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Topcoat Coverage Calculator</span></div></a>
+</div>
+    </div>
+  </div>
+
+  <div class="category">
+    <button class="category-header">
+      <span class="category-name">Tech Data Sheets</span>
+      <span class="category-count">22 items</span>
+      <span class="category-arrow">›</span>
+    </button>
+    <div class="category-content" hidden>
+      <div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_264284922687fa5d1f1f692.38319658.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Abrasion Resistance Additive Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/AlphaCoat_Polyurea%201%20.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">AlphaCoat Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_26655118266c38e9d2d5459.48740470.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Anchor Coat Cyclospartic Base Coat Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_152524242566feb5e56d1f76.78004083.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Cyclo-1 Single Component Topcoat Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_514809248664e4ca9594600.32086200.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Cyclospartic Crack Repair Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_62851171569178a0a8bdd95.80714215.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Cyclospartic Super Slow Topcoat</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_6683399196917891839aae8.15268038.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Cyclospartic Top Coat Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_120808594468cc684287a8e7.44294292.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Dry Coat Pro Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/FAST%20PATCH%20TECH%20DATA%20SHEET%20041814.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">FAST PATCH TECH DATA SHEET 041814</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/FORTIFICATION%20FORMULA%20TECH%20DATA%20SHEET%202-18-13.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">FORTIFICATION FORMULA TECH DATA SHEET 2-18-13</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_4824083687fa54ab13576.09501600.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">GF Grip Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_18431364286848279f6138d8.39459487.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">GF Patch Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_176395536566c38ec65daf18.60023041.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Level Coat Tech Data Sheet</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_45288505167dd99f443c0e4.83152617.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Level Coat: HIGH-FLOW Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/POLYFLEX-93%20TECH%20DATA%20SHEET%204-4-12.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">POLYFLEX-93 TECH DATA SHEET 4-4-12</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_18278764536945897d34fa52.54358466.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">POLYMER FLAKE TDS (CHIP)</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/Polyurea%203%20WB.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Polyurea 3 WB Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/Polyurea%20350.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Polyurea 350 Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/RG%2080x.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">RG 80x Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/SLE%20100.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">SLE 100 Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/Ultra%20Durability%20Plus%20Additive%20.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Ultra Durability Plus Additive Tech Data Sheet</span></div></a>
+<a href="https://www.gfinstallers.com/documents/techdata/Ultra%20Hydro%20Stop%20Primer.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Ultra Hydro Stop Primer Tech Data Sheet</span></div></a>
+</div>
+    </div>
+  </div>
+
+  <div class="category">
+    <button class="category-header">
+      <span class="category-name">Technical Service Bulletins</span>
+      <span class="category-count">17 items</span>
+      <span class="category-arrow">›</span>
+    </button>
+    <div class="category-content" hidden>
+      <div class="doc-list">
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_68102404068dbeae5ac9cb2.72608835.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Anti-Slip Samples</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_206378039468dbdffdd49845.69637411.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Basecoat Batch Sizes</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_353296491690e3099f04f22.91992215.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Broadcasting into Dry Coat Pro</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_32716485068daa35b5c3232.15948913.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Bubbles</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_19466289168dbec66713145.26178462.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Chip Blending</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1592925427690e2d910af564.24345316.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Cold Weather Installations</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_34083830568dbe903c2e686.04636278.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Equipment Setup</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_51512619468dbe9d0d1e918.09918092.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Manage Expectations</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_213293428268dbe0e510e9a7.30532365.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Moisture Mitigation</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_181186396868dbec367c9234.10531330.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Quality Work</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_20851560756994e087ed7ba5.78823905.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Rust Spots</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_158045460968dbeb836b8121.45720601.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Safety</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_108588941968daa3dd73e8e4.20708371.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Springtime Applications</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_187764481668daa3c700a026.04771521.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Topcoat Application</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_19438654186917926caf2ad9.39845395.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Topcoat Options</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_157197068768dbea8813d6f7.01435032.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">Trailer Maintenance</span></div></a>
+<a href="https://gfi-user-files.s3.amazonaws.com/support_files/doc_1881041941698ddf54550689.09372345.pdf" target="_blank" rel="noopener" class="doc-item"><div class="doc-icon pdf">PDF</div><div class="doc-info"><span class="doc-name">UV Stable System</span></div></a>
+</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LINKS TAB ===================== -->
+<section id="links" class="tab-panel">
+  <div class="section-header">
+    <h2>Helpful Links</h2>
+    <p class="section-desc">Quick access to key Garage Force tools and resources.</p>
+  </div>
+
+  <div class="link-grid">
+    <a href="https://gfinstallers.com/dashboard" target="_blank" rel="noopener" class="link-card">
+      <div class="link-icon">🏠</div>
+      <div class="link-info">
+        <span class="link-name">GF Installers Portal</span>
+        <span class="link-desc">Corporate installer dashboard</span>
+      </div>
+    </a>
+    <a href="https://garageforce.com" target="_blank" rel="noopener" class="link-card">
+      <div class="link-icon">🌐</div>
+      <div class="link-info">
+        <span class="link-name">Garage Force Corporate</span>
+        <span class="link-desc">Main corporate website</span>
+      </div>
+    </a>
+    <a href="https://fairfax.garageforce.com" target="_blank" rel="noopener" class="link-card">
+      <div class="link-icon">📍</div>
+      <div class="link-info">
+        <span class="link-name">Fairfax Location</span>
+        <span class="link-desc">Your local Garage Force page</span>
+      </div>
+    </a>
+    <a href="https://garageforce.com/garage-force-colors/" target="_blank" rel="noopener" class="link-card">
+      <div class="link-icon">🎨</div>
+      <div class="link-info">
+        <span class="link-name">Color Options</span>
+        <span class="link-desc">Full color catalog</span>
+      </div>
+    </a>
+    <a href="https://gfinstallers.com/support/swatch-generator" target="_blank" rel="noopener" class="link-card">
+      <div class="link-icon">🖌️</div>
+      <div class="link-info">
+        <span class="link-name">Swatch Generator</span>
+        <span class="link-desc">Create color swatches for customers</span>
+      </div>
+    </a>
+    <a href="https://gfinstallers.com/support/moisture-calculator" target="_blank" rel="noopener" class="link-card">
+      <div class="link-icon">💧</div>
+      <div class="link-info">
+        <span class="link-name">Moisture Calculator</span>
+        <span class="link-desc">Calculate moisture levels</span>
+      </div>
+    </a>
+    <a href="https://gfinstallers.com/support/franchise-zip-lookup" target="_blank" rel="noopener" class="link-card">
+      <div class="link-icon">📮</div>
+      <div class="link-info">
+        <span class="link-name">ZIP Code Lookup</span>
+        <span class="link-desc">Franchise territory lookup</span>
+      </div>
+    </a>
+    <a href="https://verifloor.us/login" target="_blank" rel="noopener noreferrer" class="link-card">
+      <div class="link-icon">📱</div>
+      <div class="link-info">
+        <span class="link-name">VeriFloor</span>
+        <span class="link-desc">QR code registration</span>
+      </div>
+    </a>
+    <a href="#" class="link-card placeholder-link">
+      <div class="link-icon">📊</div>
+      <div class="link-info">
+        <span class="link-name">Scheduling / CRM</span>
+        <span class="link-desc">Add your CRM link</span>
+      </div>
+    </a>
+    <a href="#" class="link-card placeholder-link">
+      <div class="link-icon">👤</div>
+      <div class="link-info">
+        <span class="link-name">HR / Payroll Portal</span>
+        <span class="link-desc">Add your HR link</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ===================== SCHEDULE TAB ===================== -->
+<section id="schedule" class="tab-panel">
+  <div class="section-header">
+    <h2>Schedule &amp; Calendar</h2>
+    <p class="section-desc">Your team's Google Calendar — view upcoming installations and jobs.</p>
+  </div>
+
+  <!--
+    HOW TO CONNECT YOUR GOOGLE CALENDAR:
+    1. Open Google Calendar (calendar.google.com)
+    2. Click the ⚙ gear icon → Settings
+    3. Under "Settings for my calendars", click your calendar name
+    4. Scroll to "Integrate calendar" → copy the Calendar ID
+       (It looks like: yourname@gmail.com or a long string ending in @group.calendar.google.com)
+    5. Under "Access permissions", check "Make available to public" (so the embed works without login)
+    6. Replace c_16b1d2f2ecab2719726af037b152ab28d06db195bb54bd45cd81a7608224dbb7%40group.calendar.google.com below with your actual Calendar ID
+  -->
+  <div class="gcal-card">
+    <div class="gcal-icon">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect width="48" height="48" rx="10" fill="#4285F4"/>
+        <rect x="12" y="10" width="24" height="28" rx="3" fill="#fff"/>
+        <rect x="16" y="8" width="3" height="6" rx="1.5" fill="#4285F4"/>
+        <rect x="29" y="8" width="3" height="6" rx="1.5" fill="#4285F4"/>
+        <rect x="15" y="20" width="6" height="4" rx="1" fill="#EA4335"/>
+        <rect x="23" y="20" width="6" height="4" rx="1" fill="#34A853"/>
+        <rect x="15" y="26" width="6" height="4" rx="1" fill="#FBBC04"/>
+        <rect x="23" y="26" width="6" height="4" rx="1" fill="#4285F4"/>
+        <rect x="15" y="32" width="6" height="4" rx="1" fill="#34A853"/>
+        <rect x="23" y="32" width="6" height="4" rx="1" fill="#EA4335"/>
+      </svg>
+    </div>
+    <div class="gcal-info">
+      <h3 class="gcal-title">GF Fairfax Installation Schedule</h3>
+      <p class="gcal-desc">View upcoming jobs, installation dates, and team schedule on Google Calendar.</p>
+    </div>
+    <a href="https://calendar.google.com/calendar/embed?src=c_16b1d2f2ecab2719726af037b152ab28d06db195bb54bd45cd81a7608224dbb7%40group.calendar.google.com&ctz=America%2FDetroit" target="_blank" rel="noopener" class="gcal-btn">
+      Open Calendar
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+  </div>
+
+  <div class="gcal-actions">
+    <a href="https://calendar.google.com/calendar/u/0?cid=Y18xNmIxZDJmMmVjYWIyNzE5NzI2YWYwMzdiMTUyYWIyOGQwNmRiMTk1YmI1NGJkNDVjZDgxYTc2MDgyMjRkYmI3QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20" target="_blank" rel="noopener" class="gcal-action-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Add to your Google Calendar
+    </a>
+  </div>
+</section>
+
+<!-- ===================== ADMIN TAB ===================== -->
+<section id="admin" class="tab-panel">
+  <div class="section-header">
+    <h2>Manage Team</h2>
+    <p class="section-desc">Add, remove, or update passwords for portal users.</p>
+  </div>
+
+  <div id="admin-msg" class="admin-msg" hidden></div>
+
+  <!-- Add User Form -->
+  <div class="admin-card">
+    <h3 class="admin-card-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+      Add New Team Member
+    </h3>
+    <form id="add-user-form" class="add-user-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new-name" class="form-label">Full Name</label>
+          <input type="text" id="new-name" placeholder="e.g. John Smith" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="new-username" class="form-label">Username</label>
+          <input type="text" id="new-username" placeholder="e.g. john" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="new-password" class="form-label">Password</label>
+          <input type="text" id="new-password" placeholder="e.g. gf-john" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="new-role" class="form-label">Role</label>
+          <select id="new-role" class="form-input">
+            <option value="installer">Installer</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="form-group form-group-btn">
+          <button type="submit" class="btn btn-primary">Add User</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- User Table -->
+  <div class="admin-card">
+    <h3 class="admin-card-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Current Team Members
+    </h3>
+    <div class="table-wrap">
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Added</th>
+            <th style="width:80px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="user-table-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--color-text-muted)">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>Garage Force Fairfax · Installer Portal</p>
+  <p class="footer-contact">Questions? Call Rob: <a href="tel:5715205599">571-520-5599</a></p>
+  <p class="footer-attr">
+    <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+  </p>
+</footer>
+
+</div><!-- /app -->
+
+<script src="./app.js"></script>
+</body>
+</html>
