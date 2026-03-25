@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # DB_PATH = "/home/user/workspace/gf-portal/users.db"
+import os
 DB_PATH = os.path.join(os.getcwd(), "users.db")
 
 def get_db():
