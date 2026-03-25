@@ -9,7 +9,8 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-DB_PATH = "/home/user/workspace/gf-portal/users.db"
+# DB_PATH = "/home/user/workspace/gf-portal/users.db"
+DB_PATH = os.path.join(os.getcwd(), "users.db")
 
 def get_db():
     db = sqlite3.connect(DB_PATH, check_same_thread=False)
