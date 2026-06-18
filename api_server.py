@@ -18,7 +18,10 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+    url = DATABASE_URL
+    if "sslmode" not in url:
+        url += ("&" if "?" in url else "?") + "sslmode=require"
+    conn = psycopg2.connect(url)
     return conn
 
 
