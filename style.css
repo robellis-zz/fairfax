@@ -1141,6 +1141,10 @@ select.form-input {
   color: var(--color-error);
   background: oklch(from var(--color-error) l c h / 0.08);
 }
+.btn-edit:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
 
 /* Admin Messages */
 .admin-msg {

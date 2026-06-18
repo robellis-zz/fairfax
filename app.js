@@ -520,11 +520,11 @@
         '<td>' + (isLow ? '<span class="role-badge role-admin" style="background:var(--color-warn,#f59e0b);color:#fff">Low</span>' : '<span class="role-badge role-installer">OK</span>') + '</td>' +
         (isAdmin ?
           '<td class="user-actions">' +
-            '<button class="btn-icon btn-edit" title="Edit product" data-idx="' + filtered.indexOf(p) + '">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+            '<button class="btn-icon btn-edit" title="Edit product" data-id="' + p.id + '">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events:none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
             '</button>' +
             '<button class="btn-icon btn-delete" title="Remove product" data-id="' + p.id + '" data-name="' + esc(p.name) + '">' +
-              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events:none"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
             '</button>' +
           '</td>'
           : '<td></td>') ;
@@ -550,8 +550,9 @@
     if (isAdmin) {
       invTableBody.querySelectorAll('.btn-edit').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          var idx = +this.getAttribute('data-idx');
-          setInvFormMode('edit', filtered[idx]);
+          var id = +this.getAttribute('data-id');
+          var product = allProducts.find(function(p) { return p.id === id; });
+          if (product) setInvFormMode('edit', product);
         });
       });
       invTableBody.querySelectorAll('.btn-delete').forEach(function(btn) {
