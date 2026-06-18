@@ -88,6 +88,8 @@
   <button class="tab" data-tab="documents">Documents</button>
   <button class="tab" data-tab="links">Links</button>
   <button class="tab" data-tab="schedule">Schedule</button>
+  <button class="tab" data-tab="inventory">Inventory</button>
+  <button class="tab" data-tab="jobs">Jobs</button>
   <button class="tab tab-admin" data-tab="admin" id="admin-tab" hidden>
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     Manage Team
@@ -559,6 +561,158 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
       Add to your Google Calendar
     </a>
+  </div>
+</section>
+
+<!-- ===================== INVENTORY TAB ===================== -->
+<section id="inventory" class="tab-panel">
+  <div class="section-header">
+    <h2>Inventory</h2>
+    <p class="section-desc">Track product stock levels. Any team member can update quantities.</p>
+  </div>
+
+  <div id="inv-msg" class="admin-msg" hidden></div>
+
+  <!-- Stats row -->
+  <div class="inv-stats" id="inv-stats"></div>
+
+  <!-- Add product form (admin only) -->
+  <div class="admin-card" id="inv-add-card" hidden>
+    <h3 class="admin-card-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Product
+    </h3>
+    <form id="add-product-form" class="add-user-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Product Name</label>
+          <input type="text" id="prod-name" placeholder="e.g. AlphaCoat Base" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <input type="text" id="prod-category" placeholder="e.g. Coatings" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit</label>
+          <input type="text" id="prod-unit" placeholder="e.g. gallons, bags" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Starting Qty</label>
+          <input type="number" id="prod-qty" placeholder="0" min="0" class="form-input" value="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Low Stock Alert</label>
+          <input type="number" id="prod-low" placeholder="5" min="0" class="form-input" value="5">
+        </div>
+        <div class="form-group form-group-btn">
+          <button type="submit" class="btn btn-primary">Add Product</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Product table -->
+  <div class="admin-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <h3 class="admin-card-title" style="margin:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="8" y1="3" x2="8" y2="21"/></svg>
+        Stock Levels
+      </h3>
+      <button id="inv-report-btn" class="btn btn-outline" style="font-size:.85rem">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Snapshot Report
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Unit</th>
+            <th style="width:120px">Quantity</th>
+            <th style="width:80px">Status</th>
+            <th style="width:60px" id="inv-actions-col"></th>
+          </tr>
+        </thead>
+        <tbody id="inv-table-body">
+          <tr><td colspan="6" style="text-align:center;color:var(--color-text-muted)">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== JOBS TAB ===================== -->
+<section id="jobs" class="tab-panel">
+  <div class="section-header">
+    <h2>Jobs</h2>
+    <p class="section-desc">Track upcoming and completed installations.</p>
+  </div>
+
+  <div id="jobs-msg" class="admin-msg" hidden></div>
+
+  <!-- Stats -->
+  <div class="inv-stats" id="jobs-stats"></div>
+
+  <!-- Add Job Form -->
+  <div class="admin-card">
+    <h3 class="admin-card-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add New Job
+    </h3>
+    <form id="add-job-form" class="add-user-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Customer Name</label>
+          <input type="text" id="job-customer" placeholder="e.g. John Smith" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" id="job-address" placeholder="123 Main St, Fairfax VA" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Job Date</label>
+          <input type="date" id="job-date" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Job Type</label>
+          <select id="job-type" class="form-input">
+            <option value="Chip System">Chip System</option>
+            <option value="Metallic System">Metallic System</option>
+            <option value="Medici System">Medici System</option>
+            <option value="Grind & Seal">Grind &amp; Seal</option>
+            <option value="Repair">Repair</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assigned To</label>
+          <input type="text" id="job-assigned" placeholder="e.g. Howard" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input type="text" id="job-notes" placeholder="Any details..." class="form-input">
+        </div>
+        <div class="form-group form-group-btn">
+          <button type="submit" class="btn btn-primary">Add Job</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="jobs-filter-bar">
+    <button class="jobs-filter active" data-filter="all">All</button>
+    <button class="jobs-filter" data-filter="upcoming">Upcoming</button>
+    <button class="jobs-filter" data-filter="in_progress">In Progress</button>
+    <button class="jobs-filter" data-filter="completed">Completed</button>
+    <button class="jobs-filter" data-filter="cancelled">Cancelled</button>
+  </div>
+
+  <!-- Job list -->
+  <div id="jobs-list" class="jobs-list">
+    <div style="text-align:center;color:var(--color-text-muted);padding:2rem">Loading…</div>
   </div>
 </section>
 

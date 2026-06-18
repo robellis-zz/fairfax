@@ -126,8 +126,10 @@
       const panel = document.getElementById(target);
       if (panel) panel.classList.add('active');
 
-      // Load users when admin panel is opened
+      // Load data when tabs are opened
       if (target === 'admin') loadUsers();
+      if (target === 'inventory') loadInventory();
+      if (target === 'jobs') loadJobs();
     });
   });
 
@@ -321,6 +323,327 @@
     if (!ts) return '—';
     var d = new Date(ts + 'Z');
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // ==========================================
+  // INVENTORY
+  // ==========================================
+
+  var invTableBody = document.getElementById('inv-table-body');
+  var invAddCard = document.getElementById('inv-add-card');
+  var addProductForm = document.getElementById('add-product-form');
+  var invMsg = document.getElementById('inv-msg');
+  var invStats = document.getElementById('inv-stats');
+  var invActionsCol = document.getElementById('inv-actions-col');
+
+  function showInvMsg(text, isError) {
+    if (!invMsg) return;
+    invMsg.textContent = text;
+    invMsg.className = 'admin-msg ' + (isError ? 'admin-msg-error' : 'admin-msg-success');
+    invMsg.hidden = false;
+    setTimeout(function() { invMsg.hidden = true; }, 4000);
+  }
+
+  async function loadInventory() {
+    if (!invTableBody || !authToken) return;
+    try {
+      var res = await fetch(API + '/api/products', { headers: apiHeaders() });
+      if (!res.ok) return;
+      var products = await res.json();
+      renderInventory(products);
+    } catch (e) {
+      if (invTableBody) invTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--color-text-muted)">Could not load inventory.</td></tr>';
+    }
+  }
+
+  function renderInventory(products) {
+    if (!invTableBody) return;
+    // Stats
+    var low = products.filter(function(p) { return p.quantity <= p.low_stock_qty; }).length;
+    if (invStats) {
+      invStats.innerHTML =
+        '<div class="stat-card"><span class="stat-num">' + products.length + '</span><span class="stat-label">Products</span></div>' +
+        '<div class="stat-card' + (low > 0 ? ' stat-warn' : '') + '"><span class="stat-num">' + low + '</span><span class="stat-label">Low Stock</span></div>';
+    }
+    // Admin controls
+    var isAdmin = currentUser && currentUser.role === 'admin';
+    if (invAddCard) invAddCard.hidden = !isAdmin;
+    if (invActionsCol) invActionsCol.style.display = isAdmin ? '' : 'none';
+
+    if (products.length === 0) {
+      invTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--color-text-muted)">No products yet. Add one above.</td></tr>';
+      return;
+    }
+
+    invTableBody.innerHTML = '';
+    products.forEach(function(p) {
+      var isLow = p.quantity <= p.low_stock_qty;
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><strong>' + esc(p.name) + '</strong></td>' +
+        '<td>' + esc(p.category) + '</td>' +
+        '<td>' + esc(p.unit) + '</td>' +
+        '<td>' +
+          '<div style="display:flex;align-items:center;gap:.4rem">' +
+            '<button class="btn-icon inv-dec" data-id="' + p.id + '" data-qty="' + p.quantity + '" title="Decrease">−</button>' +
+            '<span class="inv-qty" id="qty-' + p.id + '">' + p.quantity + '</span>' +
+            '<button class="btn-icon inv-inc" data-id="' + p.id + '" data-qty="' + p.quantity + '" title="Increase">+</button>' +
+          '</div>' +
+        '</td>' +
+        '<td>' + (isLow ? '<span class="role-badge role-admin" style="background:var(--color-warn,#f59e0b);color:#fff">Low</span>' : '<span class="role-badge role-installer">OK</span>') + '</td>' +
+        (isAdmin ?
+          '<td class="user-actions">' +
+            '<button class="btn-icon btn-delete" title="Remove product" data-id="' + p.id + '" data-name="' + esc(p.name) + '">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
+            '</button>' +
+          '</td>'
+          : '<td></td>') ;
+      invTableBody.appendChild(tr);
+    });
+
+    // Qty buttons
+    invTableBody.querySelectorAll('.inv-inc').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = +this.getAttribute('data-id');
+        var qty = +this.getAttribute('data-qty');
+        updateProductQty(id, qty + 1);
+      });
+    });
+    invTableBody.querySelectorAll('.inv-dec').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = +this.getAttribute('data-id');
+        var qty = +this.getAttribute('data-qty');
+        if (qty <= 0) return;
+        updateProductQty(id, qty - 1);
+      });
+    });
+    if (isAdmin) {
+      invTableBody.querySelectorAll('.btn-delete').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = this.getAttribute('data-id');
+          var name = this.getAttribute('data-name');
+          showConfirmDialog('Remove ' + name + '?', 'This product will be permanently deleted.', 'Remove', function() { deleteProduct(id); });
+        });
+      });
+    }
+  }
+
+  async function updateProductQty(id, newQty) {
+    try {
+      var res = await fetch(API + '/api/products/' + id, {
+        method: 'PUT',
+        headers: apiHeaders(),
+        body: JSON.stringify({ quantity: newQty })
+      });
+      if (res.ok) {
+        // Update inline without full reload
+        var data = await res.json();
+        var span = document.getElementById('qty-' + id);
+        if (span) span.textContent = data.quantity;
+        // Update data-qty on buttons
+        invTableBody.querySelectorAll('[data-id="' + id + '"]').forEach(function(b) {
+          b.setAttribute('data-qty', data.quantity);
+        });
+        // Refresh stats
+        loadInventory();
+      }
+    } catch(e) { showInvMsg('Connection error.', true); }
+  }
+
+  async function deleteProduct(id) {
+    try {
+      var res = await fetch(API + '/api/products/' + id, { method: 'DELETE', headers: apiHeaders() });
+      if (res.ok) { showInvMsg('Product removed.', false); loadInventory(); }
+      else { showInvMsg('Could not remove product.', true); }
+    } catch(e) { showInvMsg('Connection error.', true); }
+  }
+
+  if (addProductForm) {
+    addProductForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var body = {
+        name: document.getElementById('prod-name').value.trim(),
+        category: document.getElementById('prod-category').value.trim(),
+        unit: document.getElementById('prod-unit').value.trim(),
+        quantity: parseFloat(document.getElementById('prod-qty').value) || 0,
+        low_stock_qty: parseFloat(document.getElementById('prod-low').value) || 5
+      };
+      if (!body.name) { showInvMsg('Product name is required.', true); return; }
+      try {
+        var res = await fetch(API + '/api/products', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
+        if (res.ok) { showInvMsg(body.name + ' added.', false); addProductForm.reset(); loadInventory(); }
+        else { var err = await res.json(); showInvMsg(err.detail || 'Could not add product.', true); }
+      } catch(e) { showInvMsg('Connection error.', true); }
+    });
+  }
+
+  // Snapshot report
+  var invReportBtn = document.getElementById('inv-report-btn');
+  if (invReportBtn) {
+    invReportBtn.addEventListener('click', async function() {
+      var res = await fetch(API + '/api/products', { headers: apiHeaders() });
+      var products = await res.json();
+      var now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+      var rows = products.map(function(p) {
+        var status = p.quantity <= p.low_stock_qty ? '⚠ LOW' : 'OK';
+        return '<tr><td>' + esc(p.name) + '</td><td>' + esc(p.category) + '</td><td>' + p.quantity + ' ' + esc(p.unit) + '</td><td>' + status + '</td></tr>';
+      }).join('');
+      var html = '<html><head><title>Inventory Snapshot</title><style>body{font-family:sans-serif;padding:2rem}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:.5rem .75rem;text-align:left}th{background:#f3f4f6}h2{margin-bottom:.25rem}p{color:#6b7280;margin:0 0 1rem}</style></head><body><h2>Inventory Snapshot — GF Fairfax</h2><p>' + now + '</p><table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table></body></html>';
+      var w = window.open('', '_blank');
+      w.document.write(html);
+      w.document.close();
+    });
+  }
+
+  // ==========================================
+  // JOBS
+  // ==========================================
+
+  var addJobForm = document.getElementById('add-job-form');
+  var jobsList = document.getElementById('jobs-list');
+  var jobsMsg = document.getElementById('jobs-msg');
+  var jobsStats = document.getElementById('jobs-stats');
+  var jobsFilterBtns = document.querySelectorAll('.jobs-filter');
+  var currentJobFilter = 'all';
+  var allJobs = [];
+
+  function showJobsMsg(text, isError) {
+    if (!jobsMsg) return;
+    jobsMsg.textContent = text;
+    jobsMsg.className = 'admin-msg ' + (isError ? 'admin-msg-error' : 'admin-msg-success');
+    jobsMsg.hidden = false;
+    setTimeout(function() { jobsMsg.hidden = true; }, 4000);
+  }
+
+  jobsFilterBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      currentJobFilter = this.getAttribute('data-filter');
+      jobsFilterBtns.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      renderJobs(allJobs);
+    });
+  });
+
+  async function loadJobs() {
+    if (!jobsList || !authToken) return;
+    try {
+      var res = await fetch(API + '/api/jobs', { headers: apiHeaders() });
+      if (!res.ok) return;
+      allJobs = await res.json();
+      renderJobs(allJobs);
+    } catch(e) {
+      if (jobsList) jobsList.innerHTML = '<div style="text-align:center;color:var(--color-text-muted);padding:2rem">Could not load jobs.</div>';
+    }
+  }
+
+  var STATUS_LABELS = { upcoming: 'Upcoming', in_progress: 'In Progress', completed: 'Completed', cancelled: 'Cancelled' };
+  var STATUS_COLORS = { upcoming: '#3b82f6', in_progress: '#f59e0b', completed: '#22c55e', cancelled: '#9ca3af' };
+
+  function renderJobs(jobs) {
+    if (!jobsList) return;
+    // Stats
+    var counts = { upcoming: 0, in_progress: 0, completed: 0, cancelled: 0 };
+    jobs.forEach(function(j) { if (counts[j.status] !== undefined) counts[j.status]++; });
+    if (jobsStats) {
+      jobsStats.innerHTML =
+        '<div class="stat-card"><span class="stat-num">' + counts.upcoming + '</span><span class="stat-label">Upcoming</span></div>' +
+        '<div class="stat-card stat-warn"><span class="stat-num">' + counts.in_progress + '</span><span class="stat-label">In Progress</span></div>' +
+        '<div class="stat-card stat-ok"><span class="stat-num">' + counts.completed + '</span><span class="stat-label">Completed</span></div>';
+    }
+
+    var filtered = currentJobFilter === 'all' ? jobs : jobs.filter(function(j) { return j.status === currentJobFilter; });
+    if (filtered.length === 0) {
+      jobsList.innerHTML = '<div style="text-align:center;color:var(--color-text-muted);padding:2rem">No jobs found.</div>';
+      return;
+    }
+
+    var isAdmin = currentUser && currentUser.role === 'admin';
+    jobsList.innerHTML = '';
+    filtered.forEach(function(j) {
+      var card = document.createElement('div');
+      card.className = 'job-card';
+      var statusColor = STATUS_COLORS[j.status] || '#9ca3af';
+      var statusLabel = STATUS_LABELS[j.status] || j.status;
+      var dateStr = j.job_date ? new Date(j.job_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+      // Status options for dropdown
+      var statusOpts = Object.keys(STATUS_LABELS).map(function(s) {
+        return '<option value="' + s + '"' + (j.status === s ? ' selected' : '') + '>' + STATUS_LABELS[s] + '</option>';
+      }).join('');
+
+      card.innerHTML =
+        '<div class="job-card-header">' +
+          '<div>' +
+            '<span class="job-customer">' + esc(j.customer_name) + '</span>' +
+            '<span class="job-type-badge">' + esc(j.job_type) + '</span>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:.5rem">' +
+            '<select class="job-status-select" data-id="' + j.id + '" style="border:none;background:' + statusColor + ';color:#fff;border-radius:12px;padding:.2rem .6rem;font-size:.8rem;font-weight:600;cursor:pointer">' + statusOpts + '</select>' +
+            (isAdmin ? '<button class="btn-icon btn-delete job-delete" title="Delete job" data-id="' + j.id + '" data-name="' + esc(j.customer_name) + '"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="job-card-body">' +
+          (j.address ? '<div class="job-detail"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + esc(j.address) + '</div>' : '') +
+          '<div class="job-detail"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ' + dateStr + '</div>' +
+          (j.assigned_to ? '<div class="job-detail"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ' + esc(j.assigned_to) + '</div>' : '') +
+          (j.notes ? '<div class="job-detail job-notes">' + esc(j.notes) + '</div>' : '') +
+        '</div>';
+
+      jobsList.appendChild(card);
+    });
+
+    // Status change
+    jobsList.querySelectorAll('.job-status-select').forEach(function(sel) {
+      sel.addEventListener('change', async function() {
+        var id = this.getAttribute('data-id');
+        var newStatus = this.value;
+        var color = STATUS_COLORS[newStatus] || '#9ca3af';
+        this.style.background = color;
+        try {
+          await fetch(API + '/api/jobs/' + id, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ status: newStatus }) });
+          loadJobs();
+        } catch(e) { showJobsMsg('Could not update status.', true); }
+      });
+    });
+
+    if (isAdmin) {
+      jobsList.querySelectorAll('.job-delete').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = this.getAttribute('data-id');
+          var name = this.getAttribute('data-name');
+          showConfirmDialog('Delete job for ' + name + '?', 'This cannot be undone.', 'Delete', function() { deleteJob(id); });
+        });
+      });
+    }
+  }
+
+  if (addJobForm) {
+    addJobForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var body = {
+        customer_name: document.getElementById('job-customer').value.trim(),
+        address: document.getElementById('job-address').value.trim(),
+        job_date: document.getElementById('job-date').value,
+        job_type: document.getElementById('job-type').value,
+        assigned_to: document.getElementById('job-assigned').value.trim(),
+        notes: document.getElementById('job-notes').value.trim(),
+        status: 'upcoming'
+      };
+      if (!body.customer_name) { showJobsMsg('Customer name is required.', true); return; }
+      try {
+        var res = await fetch(API + '/api/jobs', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
+        if (res.ok) { showJobsMsg('Job added for ' + body.customer_name + '.', false); addJobForm.reset(); loadJobs(); }
+        else { var err = await res.json(); showJobsMsg(err.detail || 'Could not add job.', true); }
+      } catch(e) { showJobsMsg('Connection error.', true); }
+    });
+  }
+
+  async function deleteJob(id) {
+    try {
+      var res = await fetch(API + '/api/jobs/' + id, { method: 'DELETE', headers: apiHeaders() });
+      if (res.ok) { showJobsMsg('Job deleted.', false); loadJobs(); }
+      else { showJobsMsg('Could not delete job.', true); }
+    } catch(e) { showJobsMsg('Connection error.', true); }
   }
 
   // ==========================================
