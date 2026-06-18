@@ -578,11 +578,12 @@
 
   <!-- Add product form (admin only) -->
   <div class="admin-card" id="inv-add-card" hidden>
-    <h3 class="admin-card-title">
+    <h3 class="admin-card-title" id="inv-form-title">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Product
     </h3>
     <form id="add-product-form" class="add-user-form">
+      <input type="hidden" id="edit-product-id" value="">
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Product Name</label>
@@ -612,8 +613,9 @@
           <label class="form-label">Low Stock Alert</label>
           <input type="number" id="prod-low" placeholder="5" min="0" class="form-input" value="5">
         </div>
-        <div class="form-group form-group-btn">
-          <button type="submit" class="btn btn-primary">Add Product</button>
+        <div class="form-group form-group-btn" style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button type="submit" id="inv-submit-btn" class="btn btn-primary">Add Product</button>
+          <button type="button" id="inv-cancel-btn" class="btn btn-outline" hidden>Cancel</button>
         </div>
       </div>
     </form>

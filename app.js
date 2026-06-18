@@ -520,6 +520,9 @@
         '<td>' + (isLow ? '<span class="role-badge role-admin" style="background:var(--color-warn,#f59e0b);color:#fff">Low</span>' : '<span class="role-badge role-installer">OK</span>') + '</td>' +
         (isAdmin ?
           '<td class="user-actions">' +
+            '<button class="btn-icon btn-edit" title="Edit product" data-idx="' + filtered.indexOf(p) + '">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+            '</button>' +
             '<button class="btn-icon btn-delete" title="Remove product" data-id="' + p.id + '" data-name="' + esc(p.name) + '">' +
               '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
             '</button>' +
@@ -545,6 +548,12 @@
       });
     });
     if (isAdmin) {
+      invTableBody.querySelectorAll('.btn-edit').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = +this.getAttribute('data-idx');
+          setInvFormMode('edit', filtered[idx]);
+        });
+      });
       invTableBody.querySelectorAll('.btn-delete').forEach(function(btn) {
         btn.addEventListener('click', function() {
           var id = this.getAttribute('data-id');
@@ -579,22 +588,74 @@
     } catch(e) { showInvMsg('Connection error.', true); }
   }
 
+  var invSubmitBtn = document.getElementById('inv-submit-btn');
+  var invCancelBtn = document.getElementById('inv-cancel-btn');
+  var invFormTitle = document.getElementById('inv-form-title');
+  var editProductIdField = document.getElementById('edit-product-id');
+
+  function setInvFormMode(mode, product) {
+    if (mode === 'edit' && product) {
+      editProductIdField.value = product.id;
+      document.getElementById('prod-name').value = product.name || '';
+      document.getElementById('prod-source').value = product.source || 'Other';
+      document.getElementById('prod-qty').value = product.quantity || 0;
+      document.getElementById('prod-low').value = product.low_stock_qty || 5;
+      // Set selects after a tick so they're populated
+      setTimeout(function() {
+        document.getElementById('prod-category').value = product.category || '';
+        document.getElementById('prod-unit').value = product.unit || '';
+      }, 50);
+      if (invSubmitBtn) invSubmitBtn.textContent = 'Save Changes';
+      if (invCancelBtn) invCancelBtn.hidden = false;
+      if (invFormTitle) invFormTitle.innerHTML = invFormTitle.innerHTML.replace('Add Product', 'Edit Product');
+      invAddCard.hidden = false;
+      invAddCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      editProductIdField.value = '';
+      addProductForm.reset();
+      if (invSubmitBtn) invSubmitBtn.textContent = 'Add Product';
+      if (invCancelBtn) invCancelBtn.hidden = true;
+      if (invFormTitle) invFormTitle.innerHTML = invFormTitle.innerHTML.replace('Edit Product', 'Add Product');
+    }
+  }
+
+  if (invCancelBtn) {
+    invCancelBtn.addEventListener('click', function() { setInvFormMode('add'); });
+  }
+
   if (addProductForm) {
     addProductForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+      var editId = editProductIdField ? editProductIdField.value : '';
       var body = {
         name: document.getElementById('prod-name').value.trim(),
-        category: document.getElementById('prod-category').value.trim(),
+        category: document.getElementById('prod-category').value,
         source: document.getElementById('prod-source').value,
-        unit: document.getElementById('prod-unit').value.trim(),
+        unit: document.getElementById('prod-unit').value,
         quantity: parseFloat(document.getElementById('prod-qty').value) || 0,
         low_stock_qty: parseFloat(document.getElementById('prod-low').value) || 5
       };
       if (!body.name) { showInvMsg('Product name is required.', true); return; }
       try {
-        var res = await fetch(API + '/api/products', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
-        if (res.ok) { showInvMsg(body.name + ' added.', false); addProductForm.reset(); loadInventory(); }
-        else { var err = await res.json(); showInvMsg(err.detail || 'Could not add product.', true); }
+        var isEdit = !!editId;
+        var res = await fetch(
+          API + '/api/products' + (isEdit ? '/' + editId : ''),
+          { method: isEdit ? 'PUT' : 'POST', headers: apiHeaders(), body: JSON.stringify(body) }
+        );
+        if (res.ok) {
+          showInvMsg(body.name + (isEdit ? ' updated.' : ' added.'), false);
+          setInvFormMode('add');
+          var updated = await res.json();
+          if (isEdit) {
+            allProducts = allProducts.map(function(p) { return p.id === updated.id ? updated : p; });
+          } else {
+            allProducts.push(updated);
+          }
+          renderInventory(allProducts);
+        } else {
+          var err = await res.json();
+          showInvMsg(err.detail || 'Could not save product.', true);
+        }
       } catch(e) { showInvMsg('Connection error.', true); }
     });
   }
