@@ -72,6 +72,27 @@ def init_db():
         ALTER TABLE products ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'Other'
     """)
     cur.execute("""
+        CREATE TABLE IF NOT EXISTS categories (
+            id SERIAL PRIMARY KEY,
+            name TEXT UNIQUE NOT NULL
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS units (
+            id SERIAL PRIMARY KEY,
+            name TEXT UNIQUE NOT NULL
+        )
+    """)
+    # Seed some default categories and units
+    cur.execute("SELECT COUNT(*) FROM categories")
+    if cur.fetchone()[0] == 0:
+        for c in ['Coatings', 'Chips & Flakes', 'Consumables', 'Tools', 'Safety', 'Other']:
+            cur.execute("INSERT INTO categories (name) VALUES (%s) ON CONFLICT DO NOTHING", (c,))
+    cur.execute("SELECT COUNT(*) FROM units")
+    if cur.fetchone()[0] == 0:
+        for u in ['gallons', 'quarts', 'bags', 'boxes', 'rolls', 'each', 'pairs', 'lbs']:
+            cur.execute("INSERT INTO units (name) VALUES (%s) ON CONFLICT DO NOTHING", (u,))
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS jobs (
             id SERIAL PRIMARY KEY,
             customer_name TEXT NOT NULL,
@@ -282,6 +303,85 @@ def delete_user(user_id: int, request: Request):
     cur.close(); conn.close()
     return {"deleted": user_id}
 
+
+# ==========================================
+# CATEGORIES & UNITS
+# ==========================================
+
+class NameCreate(BaseModel):
+    name: str
+
+@app.get("/api/categories")
+def list_categories(request: Request):
+    require_auth(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    cur.execute("SELECT * FROM categories ORDER BY name")
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); conn.close()
+    return rows
+
+@app.post("/api/categories", status_code=201)
+def create_category(body: NameCreate, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    try:
+        cur.execute("INSERT INTO categories (name) VALUES (%s) RETURNING *", (body.name.strip(),))
+        row = dict(cur.fetchone())
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        cur.close(); conn.close()
+        raise HTTPException(status_code=400, detail="Category already exists")
+    cur.close(); conn.close()
+    return row
+
+@app.delete("/api/categories/{cat_id}")
+def delete_category(cat_id: int, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM categories WHERE id = %s", (cat_id,))
+    conn.commit()
+    cur.close(); conn.close()
+    return {"deleted": cat_id}
+
+@app.get("/api/units")
+def list_units(request: Request):
+    require_auth(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    cur.execute("SELECT * FROM units ORDER BY name")
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); conn.close()
+    return rows
+
+@app.post("/api/units", status_code=201)
+def create_unit(body: NameCreate, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    try:
+        cur.execute("INSERT INTO units (name) VALUES (%s) RETURNING *", (body.name.strip(),))
+        row = dict(cur.fetchone())
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        cur.close(); conn.close()
+        raise HTTPException(status_code=400, detail="Unit already exists")
+    cur.close(); conn.close()
+    return row
+
+@app.delete("/api/units/{unit_id}")
+def delete_unit(unit_id: int, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM units WHERE id = %s", (unit_id,))
+    conn.commit()
+    cur.close(); conn.close()
+    return {"deleted": unit_id}
 
 # ==========================================
 # INVENTORY

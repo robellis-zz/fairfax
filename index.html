@@ -590,7 +590,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Category</label>
-          <input type="text" id="prod-category" placeholder="e.g. Coatings" class="form-input">
+          <select id="prod-category" class="form-input"><option value="">Loading…</option></select>
         </div>
         <div class="form-group">
           <label class="form-label">Source</label>
@@ -602,7 +602,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Unit</label>
-          <input type="text" id="prod-unit" placeholder="e.g. gallons, bags" class="form-input">
+          <select id="prod-unit" class="form-input"><option value="">Loading…</option></select>
         </div>
         <div class="form-group">
           <label class="form-label">Starting Qty</label>
@@ -780,6 +780,32 @@
         </div>
       </div>
     </form>
+  </div>
+
+  <!-- Categories & Units Management -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem" class="lookup-grid">
+    <div class="admin-card" style="margin-bottom:0">
+      <h3 class="admin-card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h8M4 18h12"/></svg>
+        Categories
+      </h3>
+      <form id="add-category-form" style="display:flex;gap:.5rem;margin-bottom:.75rem">
+        <input type="text" id="new-category" placeholder="New category…" class="form-input" style="flex:1">
+        <button type="submit" class="btn btn-primary" style="white-space:nowrap">Add</button>
+      </form>
+      <ul id="category-list" class="lookup-list"></ul>
+    </div>
+    <div class="admin-card" style="margin-bottom:0">
+      <h3 class="admin-card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Units
+      </h3>
+      <form id="add-unit-form" style="display:flex;gap:.5rem;margin-bottom:.75rem">
+        <input type="text" id="new-unit" placeholder="New unit…" class="form-input" style="flex:1">
+        <button type="submit" class="btn btn-primary" style="white-space:nowrap">Add</button>
+      </form>
+      <ul id="unit-list" class="lookup-list"></ul>
+    </div>
   </div>
 
   <!-- User Table -->

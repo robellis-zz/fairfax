@@ -127,8 +127,8 @@
       if (panel) panel.classList.add('active');
 
       // Load data when tabs are opened
-      if (target === 'admin') loadUsers();
-      if (target === 'inventory') loadInventory();
+      if (target === 'admin') { loadUsers(); loadLookups(); }
+      if (target === 'inventory') { loadInventory(); loadLookups(); }
       if (target === 'jobs') loadJobs();
     });
   });
@@ -323,6 +323,85 @@
     if (!ts) return '—';
     var d = new Date(ts + 'Z');
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // ==========================================
+  // CATEGORIES & UNITS
+  // ==========================================
+
+  async function loadLookups() {
+    try {
+      var [catRes, unitRes] = await Promise.all([
+        fetch(API + '/api/categories', { headers: apiHeaders() }),
+        fetch(API + '/api/units', { headers: apiHeaders() })
+      ]);
+      var cats = await catRes.json();
+      var units = await unitRes.json();
+      populateSelect('prod-category', cats);
+      populateSelect('prod-unit', units);
+      if (currentUser && currentUser.role === 'admin') {
+        renderLookupList('category-list', cats, '/api/categories');
+        renderLookupList('unit-list', units, '/api/units');
+      }
+    } catch(e) {}
+  }
+
+  function populateSelect(id, items) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var current = sel.value;
+    sel.innerHTML = '<option value="">— select —</option>' +
+      items.map(function(i) { return '<option value="' + esc(i.name) + '">' + esc(i.name) + '</option>'; }).join('');
+    if (current) sel.value = current;
+  }
+
+  function renderLookupList(listId, items, apiPath) {
+    var ul = document.getElementById(listId);
+    if (!ul) return;
+    ul.innerHTML = '';
+    items.forEach(function(item) {
+      var li = document.createElement('li');
+      li.className = 'lookup-item';
+      li.innerHTML = '<span>' + esc(item.name) + '</span>' +
+        '<button class="btn-icon btn-delete" data-id="' + item.id + '" title="Remove">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
+        '</button>';
+      li.querySelector('.btn-delete').addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        fetch(API + apiPath + '/' + id, { method: 'DELETE', headers: apiHeaders() })
+          .then(function() { loadLookups(); });
+      });
+      ul.appendChild(li);
+    });
+    if (items.length === 0) {
+      ul.innerHTML = '<li style="color:var(--color-text-muted);font-size:.85rem;padding:.25rem 0">None yet.</li>';
+    }
+  }
+
+  // Add category form
+  var addCategoryForm = document.getElementById('add-category-form');
+  if (addCategoryForm) {
+    addCategoryForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var name = document.getElementById('new-category').value.trim();
+      if (!name) return;
+      await fetch(API + '/api/categories', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name: name }) });
+      document.getElementById('new-category').value = '';
+      loadLookups();
+    });
+  }
+
+  // Add unit form
+  var addUnitForm = document.getElementById('add-unit-form');
+  if (addUnitForm) {
+    addUnitForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var name = document.getElementById('new-unit').value.trim();
+      if (!name) return;
+      await fetch(API + '/api/units', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name: name }) });
+      document.getElementById('new-unit').value = '';
+      loadLookups();
+    });
   }
 
   // ==========================================
