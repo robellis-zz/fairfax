@@ -526,9 +526,10 @@
     });
 
     // Update sort indicators
+    var sortLabels = { name: 'Product', source: 'Source', category: 'Category', quantity: 'Quantity' };
     document.querySelectorAll('.inv-sort').forEach(function(th) {
       var key = th.getAttribute('data-sort');
-      th.textContent = (key === 'name' ? 'Product' : 'Quantity') +
+      th.textContent = (sortLabels[key] || key) +
         (currentInvSort.key === key ? (currentInvSort.dir === 1 ? ' ↑' : ' ↓') : ' ↕');
     });
 
