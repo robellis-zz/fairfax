@@ -3,15 +3,17 @@
 import sqlite3
 import hashlib
 import secrets
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-# DB_PATH = "/home/user/workspace/gf-portal/users.db"
-import os
-DB_PATH = os.path.join(os.getcwd(), "users.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "users.db")
 
 def get_db():
     db = sqlite3.connect(DB_PATH, check_same_thread=False)
@@ -176,6 +178,16 @@ def delete_user(user_id: int, request: Request):
     db.close()
     return {"deleted": user_id}
 
+# --- Serve frontend static files ---
+# Root route serves index.html
+@app.get("/")
+def serve_index():
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
+
+# Mount all other static files (css, js, images) at root
+app.mount("/", StaticFiles(directory=BASE_DIR), name="static")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

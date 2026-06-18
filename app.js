@@ -5,7 +5,7 @@
 (function() {
   'use strict';
 
-  const API = "port/8000".startsWith("__") ? "http://localhost:8000" : "port/8000";
+  const API = "";
 
   let currentUser = null;
   let authToken = null;
