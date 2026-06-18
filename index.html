@@ -593,6 +593,14 @@
           <input type="text" id="prod-category" placeholder="e.g. Coatings" class="form-input">
         </div>
         <div class="form-group">
+          <label class="form-label">Source</label>
+          <select id="prod-source" class="form-input">
+            <option value="Corporate">Corporate</option>
+            <option value="Home Depot">Home Depot</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Unit</label>
           <input type="text" id="prod-unit" placeholder="e.g. gallons, bags" class="form-input">
         </div>
@@ -611,6 +619,14 @@
     </form>
   </div>
 
+  <!-- Source filter + sort bar -->
+  <div class="jobs-filter-bar">
+    <button class="jobs-filter active" data-inv-filter="all">All</button>
+    <button class="jobs-filter" data-inv-filter="Corporate">Corporate</button>
+    <button class="jobs-filter" data-inv-filter="Home Depot">Home Depot</button>
+    <button class="jobs-filter" data-inv-filter="Other">Other</button>
+  </div>
+
   <!-- Product table -->
   <div class="admin-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
@@ -627,10 +643,11 @@
       <table class="user-table">
         <thead>
           <tr>
-            <th>Product</th>
+            <th class="inv-sort" data-sort="name" style="cursor:pointer">Product ↕</th>
+            <th>Source</th>
             <th>Category</th>
             <th>Unit</th>
-            <th style="width:120px">Quantity</th>
+            <th class="inv-sort" data-sort="quantity" style="cursor:pointer;width:120px">Quantity ↕</th>
             <th style="width:80px">Status</th>
             <th style="width:60px" id="inv-actions-col"></th>
           </tr>
@@ -701,13 +718,19 @@
     </form>
   </div>
 
-  <!-- Filter tabs -->
-  <div class="jobs-filter-bar">
-    <button class="jobs-filter active" data-filter="all">All</button>
-    <button class="jobs-filter" data-filter="upcoming">Upcoming</button>
-    <button class="jobs-filter" data-filter="in_progress">In Progress</button>
-    <button class="jobs-filter" data-filter="completed">Completed</button>
-    <button class="jobs-filter" data-filter="cancelled">Cancelled</button>
+  <!-- Filter + export bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
+    <div class="jobs-filter-bar" style="margin-bottom:0">
+      <button class="jobs-filter active" data-filter="all">All</button>
+      <button class="jobs-filter" data-filter="upcoming">Upcoming</button>
+      <button class="jobs-filter" data-filter="in_progress">In Progress</button>
+      <button class="jobs-filter" data-filter="completed">Completed</button>
+      <button class="jobs-filter" data-filter="cancelled">Cancelled</button>
+    </div>
+    <button id="jobs-export-btn" class="btn btn-outline" style="font-size:.85rem">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="18"/><line x1="15" y1="15" x2="12" y2="18"/></svg>
+      Print / Export
+    </button>
   </div>
 
   <!-- Job list -->

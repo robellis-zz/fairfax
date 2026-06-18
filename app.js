@@ -335,6 +335,19 @@
   var invMsg = document.getElementById('inv-msg');
   var invStats = document.getElementById('inv-stats');
   var invActionsCol = document.getElementById('inv-actions-col');
+  var allProducts = [];
+  var currentInvFilter = 'all';
+  var currentInvSort = { key: 'name', dir: 1 };
+
+  // Source filter buttons
+  document.querySelectorAll('[data-inv-filter]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      currentInvFilter = this.getAttribute('data-inv-filter');
+      document.querySelectorAll('[data-inv-filter]').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      renderInventory(allProducts);
+    });
+  });
 
   function showInvMsg(text, isError) {
     if (!invMsg) return;
@@ -349,16 +362,31 @@
     try {
       var res = await fetch(API + '/api/products', { headers: apiHeaders() });
       if (!res.ok) return;
-      var products = await res.json();
-      renderInventory(products);
+      allProducts = await res.json();
+      renderInventory(allProducts);
     } catch (e) {
-      if (invTableBody) invTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--color-text-muted)">Could not load inventory.</td></tr>';
+      if (invTableBody) invTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--color-text-muted)">Could not load inventory.</td></tr>';
     }
   }
 
+  // Sort header clicks
+  document.querySelectorAll('.inv-sort').forEach(function(th) {
+    th.addEventListener('click', function() {
+      var key = this.getAttribute('data-sort');
+      if (currentInvSort.key === key) {
+        currentInvSort.dir *= -1;
+      } else {
+        currentInvSort = { key: key, dir: 1 };
+      }
+      renderInventory(allProducts);
+    });
+  });
+
+  var SOURCE_COLORS = { 'Corporate': '#6366f1', 'Home Depot': '#f97316', 'Other': '#9ca3af' };
+
   function renderInventory(products) {
     if (!invTableBody) return;
-    // Stats
+    // Stats (always from full list)
     var low = products.filter(function(p) { return p.quantity <= p.low_stock_qty; }).length;
     if (invStats) {
       invStats.innerHTML =
@@ -370,17 +398,37 @@
     if (invAddCard) invAddCard.hidden = !isAdmin;
     if (invActionsCol) invActionsCol.style.display = isAdmin ? '' : 'none';
 
-    if (products.length === 0) {
-      invTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--color-text-muted)">No products yet. Add one above.</td></tr>';
+    // Filter by source
+    var filtered = currentInvFilter === 'all' ? products.slice() : products.filter(function(p) { return p.source === currentInvFilter; });
+
+    // Sort
+    filtered.sort(function(a, b) {
+      var av = a[currentInvSort.key], bv = b[currentInvSort.key];
+      if (typeof av === 'string') av = av.toLowerCase();
+      if (typeof bv === 'string') bv = bv.toLowerCase();
+      return av < bv ? -currentInvSort.dir : av > bv ? currentInvSort.dir : 0;
+    });
+
+    // Update sort indicators
+    document.querySelectorAll('.inv-sort').forEach(function(th) {
+      var key = th.getAttribute('data-sort');
+      th.textContent = (key === 'name' ? 'Product' : 'Quantity') +
+        (currentInvSort.key === key ? (currentInvSort.dir === 1 ? ' ↑' : ' ↓') : ' ↕');
+    });
+
+    if (filtered.length === 0) {
+      invTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--color-text-muted)">No products found.</td></tr>';
       return;
     }
 
     invTableBody.innerHTML = '';
-    products.forEach(function(p) {
+    filtered.forEach(function(p) {
       var isLow = p.quantity <= p.low_stock_qty;
+      var srcColor = SOURCE_COLORS[p.source] || '#9ca3af';
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td><strong>' + esc(p.name) + '</strong></td>' +
+        '<td><span style="display:inline-block;background:' + srcColor + ';color:#fff;border-radius:10px;padding:.1rem .55rem;font-size:.78rem;font-weight:600">' + esc(p.source || 'Other') + '</span></td>' +
         '<td>' + esc(p.category) + '</td>' +
         '<td>' + esc(p.unit) + '</td>' +
         '<td>' +
@@ -436,16 +484,10 @@
         body: JSON.stringify({ quantity: newQty })
       });
       if (res.ok) {
-        // Update inline without full reload
         var data = await res.json();
-        var span = document.getElementById('qty-' + id);
-        if (span) span.textContent = data.quantity;
-        // Update data-qty on buttons
-        invTableBody.querySelectorAll('[data-id="' + id + '"]').forEach(function(b) {
-          b.setAttribute('data-qty', data.quantity);
-        });
-        // Refresh stats
-        loadInventory();
+        // Update allProducts and re-render
+        allProducts = allProducts.map(function(p) { return p.id === data.id ? data : p; });
+        renderInventory(allProducts);
       }
     } catch(e) { showInvMsg('Connection error.', true); }
   }
@@ -464,6 +506,7 @@
       var body = {
         name: document.getElementById('prod-name').value.trim(),
         category: document.getElementById('prod-category').value.trim(),
+        source: document.getElementById('prod-source').value,
         unit: document.getElementById('prod-unit').value.trim(),
         quantity: parseFloat(document.getElementById('prod-qty').value) || 0,
         low_stock_qty: parseFloat(document.getElementById('prod-low').value) || 5
@@ -635,6 +678,68 @@
         if (res.ok) { showJobsMsg('Job added for ' + body.customer_name + '.', false); addJobForm.reset(); loadJobs(); }
         else { var err = await res.json(); showJobsMsg(err.detail || 'Could not add job.', true); }
       } catch(e) { showJobsMsg('Connection error.', true); }
+    });
+  }
+
+  // --- Export / Print ---
+  var jobsExportBtn = document.getElementById('jobs-export-btn');
+  if (jobsExportBtn) {
+    jobsExportBtn.addEventListener('click', function() {
+      // Export whatever is currently filtered, defaulting to upcoming if showing all
+      var exportJobs = currentJobFilter === 'all'
+        ? allJobs.filter(function(j) { return j.status === 'upcoming'; })
+        : allJobs.filter(function(j) { return j.status === currentJobFilter; });
+
+      var filterLabel = currentJobFilter === 'all' ? 'Upcoming' : STATUS_LABELS[currentJobFilter] || currentJobFilter;
+      var now = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      var cards = exportJobs.map(function(j) {
+        var dateStr = j.job_date
+          ? new Date(j.job_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+          : '—';
+        return [
+          '<div class="job-card">',
+          '  <div class="job-header">',
+          '    <div class="job-customer">' + esc(j.customer_name) + '</div>',
+          '    <div class="job-date">' + dateStr + '</div>',
+          '  </div>',
+          '  <div class="job-body">',
+          '    <div class="job-row"><span class="label">Type</span><span>' + esc(j.job_type) + '</span></div>',
+          j.address   ? '    <div class="job-row"><span class="label">Address</span><span>' + esc(j.address) + '</span></div>' : '',
+          j.assigned_to ? '    <div class="job-row"><span class="label">Assigned To</span><span>' + esc(j.assigned_to) + '</span></div>' : '',
+          j.notes     ? '    <div class="job-row"><span class="label">Notes</span><span>' + esc(j.notes) + '</span></div>' : '',
+          '  </div>',
+          '</div>'
+        ].filter(Boolean).join('\n');
+      }).join('\n');
+
+      if (exportJobs.length === 0) {
+        cards = '<p style="color:#6b7280;font-style:italic">No jobs to display.</p>';
+      }
+
+      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>GF Fairfax — ' + filterLabel + ' Jobs</title><style>' +
+        'body{font-family:"Helvetica Neue",Arial,sans-serif;margin:0;padding:2rem;color:#111;font-size:14px}' +
+        'h1{font-size:1.5rem;margin:0 0 .25rem}' +
+        '.meta{color:#6b7280;margin:0 0 1.5rem;font-size:.9rem}' +
+        '.job-card{border:1px solid #d1d5db;border-radius:8px;margin-bottom:1.25rem;page-break-inside:avoid;overflow:hidden}' +
+        '.job-header{background:#f3f4f6;padding:.75rem 1rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #d1d5db}' +
+        '.job-customer{font-size:1.15rem;font-weight:700}' +
+        '.job-date{font-size:.9rem;color:#374151;font-weight:600}' +
+        '.job-body{padding:.75rem 1rem}' +
+        '.job-row{display:flex;gap:.75rem;padding:.3rem 0;border-bottom:1px solid #f3f4f6;font-size:.95rem}' +
+        '.job-row:last-child{border-bottom:none}' +
+        '.label{min-width:100px;font-weight:600;color:#6b7280;flex-shrink:0}' +
+        '@media print{body{padding:1rem}.job-card{margin-bottom:1rem}}' +
+        '</style></head><body>' +
+        '<h1>Garage Force Fairfax — ' + filterLabel + ' Jobs</h1>' +
+        '<p class="meta">Printed ' + now + ' &nbsp;·&nbsp; ' + exportJobs.length + ' job' + (exportJobs.length !== 1 ? 's' : '') + '</p>' +
+        cards +
+        '<script>window.onload=function(){window.print()}<\/script>' +
+        '</body></html>';
+
+      var w = window.open('', '_blank');
+      w.document.write(html);
+      w.document.close();
     });
   }
 

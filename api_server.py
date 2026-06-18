@@ -59,12 +59,17 @@ def init_db():
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             category TEXT NOT NULL DEFAULT '',
+            source TEXT NOT NULL DEFAULT 'Other',
             unit TEXT NOT NULL DEFAULT '',
             quantity FLOAT NOT NULL DEFAULT 0,
             low_stock_qty FLOAT NOT NULL DEFAULT 5,
             updated_at TIMESTAMP DEFAULT NOW(),
             updated_by TEXT NOT NULL DEFAULT ''
         )
+    """)
+    # Add source column if it doesn't exist yet (for existing deployments)
+    cur.execute("""
+        ALTER TABLE products ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'Other'
     """)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS jobs (
@@ -130,6 +135,7 @@ class UserUpdate(BaseModel):
 class ProductCreate(BaseModel):
     name: str
     category: str = ""
+    source: str = "Other"
     unit: str = ""
     quantity: float = 0
     low_stock_qty: float = 5
@@ -137,6 +143,7 @@ class ProductCreate(BaseModel):
 class ProductUpdate(BaseModel):
     name: str | None = None
     category: str | None = None
+    source: str | None = None
     unit: str | None = None
     quantity: float | None = None
     low_stock_qty: float | None = None
@@ -297,8 +304,8 @@ def create_product(product: ProductCreate, request: Request):
     conn = get_db()
     cur = db_cursor(conn)
     cur.execute(
-        "INSERT INTO products (name, category, unit, quantity, low_stock_qty) VALUES (%s, %s, %s, %s, %s) RETURNING *",
-        (product.name, product.category, product.unit, product.quantity, product.low_stock_qty),
+        "INSERT INTO products (name, category, source, unit, quantity, low_stock_qty) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
+        (product.name, product.category, product.source, product.unit, product.quantity, product.low_stock_qty),
     )
     row = dict(cur.fetchone())
     conn.commit()
