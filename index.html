@@ -86,10 +86,10 @@
 
 <!-- NAV TABS -->
 <nav class="tab-bar">
-  <button class="tab active" data-tab="training">Training</button>
+  <button class="tab active" data-tab="home">Home</button>
+  <button class="tab" data-tab="training">Training</button>
   <button class="tab" data-tab="documents">Documents</button>
   <button class="tab" data-tab="links">Links</button>
-  <button class="tab" data-tab="schedule">Schedule</button>
   <button class="tab" data-tab="inventory">Inventory</button>
   <button class="tab" data-tab="jobs">Jobs</button>
   <button class="tab tab-admin" data-tab="admin" id="admin-tab" hidden>
@@ -98,9 +98,72 @@
   </button>
 </nav>
 
-<!-- ===================== TRAINING TAB ===================== -->
+<!-- ===================== HOME TAB ===================== -->
 <main>
-<section id="training" class="tab-panel active">
+<section id="home" class="tab-panel active">
+  <div class="home-hero">
+    <img src="./logo.jpg" alt="Garage Force of Fairfax" class="home-logo">
+    <h1 class="home-title">Welcome, <span id="home-name">there</span>!</h1>
+    <p class="home-subtitle">Garage Force Fairfax &nbsp;·&nbsp; Installer Portal</p>
+  </div>
+
+  <div class="home-grid" id="home-grid">
+
+    <button class="home-card" data-goto="training">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <h3>Training</h3>
+      <p>System-specific install guides, videos, and technical resources for Chip, Metallic, Medici, and more.</p>
+    </button>
+
+    <button class="home-card" data-goto="documents">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <h3>Documents</h3>
+      <p>Tech data sheets, service bulletins, and forms. Everything you need on the job site.</p>
+    </button>
+
+    <button class="home-card" data-goto="links">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <h3>Links</h3>
+      <p>Quick access to the GF Installers portal, VeriFloor, color catalog, and other key tools.</p>
+    </button>
+
+    <button class="home-card" data-goto="inventory">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="8" y1="3" x2="8" y2="21"/></svg>
+      </div>
+      <h3>Inventory</h3>
+      <p>Check and update stock levels. Any team member can adjust quantities.</p>
+      <span class="home-card-stat" id="home-inv-stat" hidden></span>
+    </button>
+
+    <button class="home-card" data-goto="jobs">
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <h3>Jobs</h3>
+      <p>Track upcoming and in-progress installations. Log job details and update status.</p>
+      <span class="home-card-stat home-card-stat-blue" id="home-jobs-stat" hidden></span>
+    </button>
+
+    <button class="home-card home-card-admin" data-goto="admin" id="home-admin-card" hidden>
+      <div class="home-card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <h3>Manage Team</h3>
+      <p>Add or remove team members, reset passwords, and manage categories, units &amp; sources.</p>
+    </button>
+
+  </div>
+</section>
+
+<!-- ===================== TRAINING TAB ===================== -->
+<section id="training" class="tab-panel">
   <div class="section-header">
     <h2>Training Materials</h2>
     <p class="section-desc">System-specific training resources, videos, and documentation from Garage Force corporate.</p>
@@ -497,13 +560,6 @@
       <div class="link-info">
         <span class="link-name">VeriFloor</span>
         <span class="link-desc">QR code registration</span>
-      </div>
-    </a>
-    <a href="#" class="link-card placeholder-link">
-      <div class="link-icon">📊</div>
-      <div class="link-info">
-        <span class="link-name">Scheduling / CRM</span>
-        <span class="link-desc">Add your CRM link</span>
       </div>
     </a>
     <a href="#" class="link-card placeholder-link">

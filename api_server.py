@@ -347,6 +347,22 @@ def create_category(body: NameCreate, request: Request):
     cur.close(); conn.close()
     return row
 
+@app.put("/api/categories/{cat_id}")
+def update_category(cat_id: int, body: NameCreate, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    try:
+        cur.execute("UPDATE categories SET name = %s WHERE id = %s RETURNING *", (body.name.strip(), cat_id))
+        row = dict(cur.fetchone())
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        cur.close(); conn.close()
+        raise HTTPException(status_code=400, detail="Name already exists")
+    cur.close(); conn.close()
+    return row
+
 @app.delete("/api/categories/{cat_id}")
 def delete_category(cat_id: int, request: Request):
     require_admin(request)
@@ -383,6 +399,22 @@ def create_unit(body: NameCreate, request: Request):
     cur.close(); conn.close()
     return row
 
+@app.put("/api/units/{unit_id}")
+def update_unit(unit_id: int, body: NameCreate, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    try:
+        cur.execute("UPDATE units SET name = %s WHERE id = %s RETURNING *", (body.name.strip(), unit_id))
+        row = dict(cur.fetchone())
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        cur.close(); conn.close()
+        raise HTTPException(status_code=400, detail="Name already exists")
+    cur.close(); conn.close()
+    return row
+
 @app.delete("/api/units/{unit_id}")
 def delete_unit(unit_id: int, request: Request):
     require_admin(request)
@@ -416,6 +448,22 @@ def create_source(body: NameCreate, request: Request):
         conn.rollback()
         cur.close(); conn.close()
         raise HTTPException(status_code=400, detail="Source already exists")
+    cur.close(); conn.close()
+    return row
+
+@app.put("/api/sources/{source_id}")
+def update_source(source_id: int, body: NameCreate, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    try:
+        cur.execute("UPDATE sources SET name = %s WHERE id = %s RETURNING *", (body.name.strip(), source_id))
+        row = dict(cur.fetchone())
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        cur.close(); conn.close()
+        raise HTTPException(status_code=400, detail="Name already exists")
     cur.close(); conn.close()
     return row
 

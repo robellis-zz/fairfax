@@ -58,14 +58,51 @@
     if (currentUser && userGreeting) {
       userGreeting.textContent = currentUser.name;
     }
-    // Show admin tab only for admin users
+    // Show admin tab + home card only for admin users
     if (currentUser && currentUser.role === 'admin') {
       if (adminTab) adminTab.hidden = false;
       if (adminMobileTab) adminMobileTab.hidden = false;
+      var adminCard = document.getElementById('home-admin-card');
+      if (adminCard) adminCard.hidden = false;
     } else {
       if (adminTab) adminTab.hidden = true;
       if (adminMobileTab) adminMobileTab.hidden = true;
     }
+    // Set home greeting
+    var homeName = document.getElementById('home-name');
+    if (homeName && currentUser) homeName.textContent = currentUser.name.split(' ')[0];
+    // Load home stats
+    loadHome();
+  }
+
+  async function loadHome() {
+    if (!authToken) return;
+    try {
+      var [prodRes, jobRes] = await Promise.all([
+        fetch(API + '/api/products', { headers: apiHeaders() }),
+        fetch(API + '/api/jobs', { headers: apiHeaders() })
+      ]);
+      if (prodRes.ok) {
+        var products = await prodRes.json();
+        var lowCount = products.filter(function(p) { return p.quantity <= p.low_stock_qty; }).length;
+        var invStat = document.getElementById('home-inv-stat');
+        if (invStat) {
+          if (lowCount > 0) {
+            invStat.textContent = lowCount + ' item' + (lowCount !== 1 ? 's' : '') + ' low on stock';
+            invStat.hidden = false;
+          }
+        }
+      }
+      if (jobRes.ok) {
+        var jobs = await jobRes.json();
+        var upcomingCount = jobs.filter(function(j) { return j.status === 'upcoming'; }).length;
+        var jobsStat = document.getElementById('home-jobs-stat');
+        if (jobsStat && upcomingCount > 0) {
+          jobsStat.textContent = upcomingCount + ' upcoming job' + (upcomingCount !== 1 ? 's' : '');
+          jobsStat.hidden = false;
+        }
+      }
+    } catch(e) {}
   }
 
   // --- Logout ---
@@ -127,9 +164,19 @@
       if (panel) panel.classList.add('active');
 
       // Load data when tabs are opened
+      if (target === 'home') loadHome();
       if (target === 'admin') { loadUsers(); loadLookups(); }
       if (target === 'inventory') { loadInventory(); loadLookups(); }
       if (target === 'jobs') loadJobs();
+    });
+  });
+
+  // --- Home card navigation ---
+  document.querySelectorAll('.home-card[data-goto]').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var target = this.getAttribute('data-goto');
+      var btn = document.querySelector('.tab[data-tab="' + target + '"]');
+      if (btn) btn.click();
     });
   });
 
@@ -394,15 +441,63 @@
     items.forEach(function(item) {
       var li = document.createElement('li');
       li.className = 'lookup-item';
-      li.innerHTML = '<span>' + esc(item.name) + '</span>' +
-        '<button class="btn-icon btn-delete" data-id="' + item.id + '" title="Remove">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
-        '</button>';
-      li.querySelector('.btn-delete').addEventListener('click', function() {
+      li.innerHTML =
+        '<span class="lookup-name">' + esc(item.name) + '</span>' +
+        '<div style="display:flex;gap:.25rem;flex-shrink:0">' +
+          '<button class="btn-icon btn-edit lookup-edit" data-id="' + item.id + '" title="Rename">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;display:block;flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          '</button>' +
+          '<button class="btn-icon btn-delete lookup-delete" data-id="' + item.id + '" title="Remove">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
+          '</button>' +
+        '</div>';
+
+      li.querySelector('.lookup-edit').addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        var nameSpan = li.querySelector('.lookup-name');
+        var currentName = nameSpan.textContent;
+        var actionsDiv = li.querySelector('div');
+
+        // Swap span → input
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentName;
+        input.className = 'form-input';
+        input.style.cssText = 'flex:1;padding:.2rem .5rem;font-size:.875rem;height:auto;min-width:0';
+        nameSpan.replaceWith(input);
+        input.focus();
+        input.select();
+
+        // Swap buttons → Save / Cancel
+        actionsDiv.innerHTML =
+          '<button class="btn btn-primary" style="padding:.2rem .55rem;font-size:.8rem;white-space:nowrap">Save</button>' +
+          '<button class="btn btn-outline" style="padding:.2rem .55rem;font-size:.8rem;white-space:nowrap">Cancel</button>';
+
+        async function save() {
+          var newName = input.value.trim();
+          if (!newName) { cancel(); return; }
+          if (newName === currentName) { cancel(); return; }
+          var res = await fetch(API + apiPath + '/' + id, {
+            method: 'PUT', headers: apiHeaders(), body: JSON.stringify({ name: newName })
+          });
+          if (res.ok) { loadLookups(); } else { cancel(); }
+        }
+        function cancel() { loadLookups(); }
+
+        actionsDiv.querySelector('.btn-primary').addEventListener('click', save);
+        actionsDiv.querySelector('.btn-outline').addEventListener('click', cancel);
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') save();
+          if (e.key === 'Escape') cancel();
+        });
+      });
+
+      li.querySelector('.lookup-delete').addEventListener('click', function() {
         var id = this.getAttribute('data-id');
         fetch(API + apiPath + '/' + id, { method: 'DELETE', headers: apiHeaders() })
           .then(function() { loadLookups(); });
       });
+
       ul.appendChild(li);
     });
     if (items.length === 0) {
