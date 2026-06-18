@@ -521,10 +521,10 @@
         (isAdmin ?
           '<td class="user-actions">' +
             '<button class="btn-icon btn-edit" title="Edit product" data-id="' + p.id + '">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events:none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;display:block;flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
             '</button>' +
             '<button class="btn-icon btn-delete" title="Remove product" data-id="' + p.id + '" data-name="' + esc(p.name) + '">' +
-              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events:none"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;display:block;flex-shrink:0"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
             '</button>' +
           '</td>'
           : '<td></td>') ;
@@ -599,8 +599,8 @@
       editProductIdField.value = product.id;
       document.getElementById('prod-name').value = product.name || '';
       document.getElementById('prod-source').value = product.source || 'Other';
-      document.getElementById('prod-qty').value = product.quantity || 0;
-      document.getElementById('prod-low').value = product.low_stock_qty || 5;
+      document.getElementById('prod-qty').value = product.quantity != null ? product.quantity : 0;
+      document.getElementById('prod-low').value = product.low_stock_qty != null ? product.low_stock_qty : 5;
       // Set selects after a tick so they're populated
       setTimeout(function() {
         document.getElementById('prod-category').value = product.category || '';
@@ -634,7 +634,7 @@
         source: document.getElementById('prod-source').value,
         unit: document.getElementById('prod-unit').value,
         quantity: parseFloat(document.getElementById('prod-qty').value) || 0,
-        low_stock_qty: parseFloat(document.getElementById('prod-low').value) || 5
+        low_stock_qty: (function() { var v = parseFloat(document.getElementById('prod-low').value); return isNaN(v) ? 5 : v; }())
       };
       if (!body.name) { showInvMsg('Product name is required.', true); return; }
       try {

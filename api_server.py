@@ -419,24 +419,40 @@ def update_product(product_id: int, updates: ProductUpdate, request: Request):
     is_admin = session["role"] == "admin"
     conn = get_db()
     cur = db_cursor(conn)
-    cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+    cur.execute("SELECT id FROM products WHERE id = %s", (product_id,))
     if not cur.fetchone():
         cur.close(); conn.close()
         raise HTTPException(status_code=404, detail="Product not found")
-    if updates.name is not None and is_admin:
-        cur.execute("UPDATE products SET name = %s WHERE id = %s", (updates.name, product_id))
-    if updates.category is not None and is_admin:
-        cur.execute("UPDATE products SET category = %s WHERE id = %s", (updates.category, product_id))
-    if updates.unit is not None and is_admin:
-        cur.execute("UPDATE products SET unit = %s WHERE id = %s", (updates.unit, product_id))
-    if updates.low_stock_qty is not None and is_admin:
-        cur.execute("UPDATE products SET low_stock_qty = %s WHERE id = %s", (updates.low_stock_qty, product_id))
+
+    set_clauses = []
+    values = []
+
+    # Any user can update quantity
     if updates.quantity is not None:
+        set_clauses += ["quantity = %s", "updated_at = NOW()", "updated_by = %s"]
+        values += [updates.quantity, session["name"]]
+
+    # Admin-only fields
+    if is_admin:
+        if updates.name is not None:
+            set_clauses.append("name = %s"); values.append(updates.name)
+        if updates.category is not None:
+            set_clauses.append("category = %s"); values.append(updates.category)
+        if updates.source is not None:
+            set_clauses.append("source = %s"); values.append(updates.source)
+        if updates.unit is not None:
+            set_clauses.append("unit = %s"); values.append(updates.unit)
+        if updates.low_stock_qty is not None:
+            set_clauses.append("low_stock_qty = %s"); values.append(updates.low_stock_qty)
+
+    if set_clauses:
+        values.append(product_id)
         cur.execute(
-            "UPDATE products SET quantity = %s, updated_at = NOW(), updated_by = %s WHERE id = %s",
-            (updates.quantity, session["name"], product_id)
+            f"UPDATE products SET {', '.join(set_clauses)} WHERE id = %s",
+            values
         )
-    conn.commit()
+        conn.commit()
+
     cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
     updated = dict(cur.fetchone())
     cur.close(); conn.close()
