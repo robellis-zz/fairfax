@@ -83,7 +83,13 @@ def init_db():
             name TEXT UNIQUE NOT NULL
         )
     """)
-    # Seed some default categories and units
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS sources (
+            id SERIAL PRIMARY KEY,
+            name TEXT UNIQUE NOT NULL
+        )
+    """)
+    # Seed some default categories, units, and sources
     cur.execute("SELECT COUNT(*) FROM categories")
     if cur.fetchone()[0] == 0:
         for c in ['Coatings', 'Chips & Flakes', 'Consumables', 'Tools', 'Safety', 'Other']:
@@ -92,6 +98,10 @@ def init_db():
     if cur.fetchone()[0] == 0:
         for u in ['gallons', 'quarts', 'bags', 'boxes', 'rolls', 'each', 'pairs', 'lbs']:
             cur.execute("INSERT INTO units (name) VALUES (%s) ON CONFLICT DO NOTHING", (u,))
+    cur.execute("SELECT COUNT(*) FROM sources")
+    if cur.fetchone()[0] == 0:
+        for s in ['Corporate', 'Home Depot', 'Other']:
+            cur.execute("INSERT INTO sources (name) VALUES (%s) ON CONFLICT DO NOTHING", (s,))
     cur.execute("""
         CREATE TABLE IF NOT EXISTS jobs (
             id SERIAL PRIMARY KEY,
@@ -382,6 +392,42 @@ def delete_unit(unit_id: int, request: Request):
     conn.commit()
     cur.close(); conn.close()
     return {"deleted": unit_id}
+
+@app.get("/api/sources")
+def list_sources(request: Request):
+    require_auth(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    cur.execute("SELECT * FROM sources ORDER BY name")
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close(); conn.close()
+    return rows
+
+@app.post("/api/sources", status_code=201)
+def create_source(body: NameCreate, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = db_cursor(conn)
+    try:
+        cur.execute("INSERT INTO sources (name) VALUES (%s) RETURNING *", (body.name.strip(),))
+        row = dict(cur.fetchone())
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        cur.close(); conn.close()
+        raise HTTPException(status_code=400, detail="Source already exists")
+    cur.close(); conn.close()
+    return row
+
+@app.delete("/api/sources/{source_id}")
+def delete_source(source_id: int, request: Request):
+    require_admin(request)
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM sources WHERE id = %s", (source_id,))
+    conn.commit()
+    cur.close(); conn.close()
+    return {"deleted": source_id}
 
 # ==========================================
 # INVENTORY

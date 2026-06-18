@@ -331,19 +331,51 @@
 
   async function loadLookups() {
     try {
-      var [catRes, unitRes] = await Promise.all([
+      var [catRes, unitRes, srcRes] = await Promise.all([
         fetch(API + '/api/categories', { headers: apiHeaders() }),
-        fetch(API + '/api/units', { headers: apiHeaders() })
+        fetch(API + '/api/units', { headers: apiHeaders() }),
+        fetch(API + '/api/sources', { headers: apiHeaders() })
       ]);
       var cats = await catRes.json();
       var units = await unitRes.json();
+      var sources = await srcRes.json();
       populateSelect('prod-category', cats);
       populateSelect('prod-unit', units);
+      populateSelect('prod-source', sources);
+      renderSourceFilters(sources);
       if (currentUser && currentUser.role === 'admin') {
         renderLookupList('category-list', cats, '/api/categories');
         renderLookupList('unit-list', units, '/api/units');
+        renderLookupList('source-list', sources, '/api/sources');
       }
     } catch(e) {}
+  }
+
+  function renderSourceFilters(sources) {
+    var bar = document.getElementById('inv-source-filters');
+    if (!bar) return;
+    bar.innerHTML = '';
+    var allBtn = document.createElement('button');
+    allBtn.className = 'jobs-filter' + (currentInvFilter === 'all' ? ' active' : '');
+    allBtn.setAttribute('data-inv-filter', 'all');
+    allBtn.textContent = 'All';
+    bar.appendChild(allBtn);
+    sources.forEach(function(s) {
+      var btn = document.createElement('button');
+      btn.className = 'jobs-filter' + (currentInvFilter === s.name ? ' active' : '');
+      btn.setAttribute('data-inv-filter', s.name);
+      btn.textContent = s.name;
+      bar.appendChild(btn);
+    });
+    // Reattach click listeners
+    bar.querySelectorAll('[data-inv-filter]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        currentInvFilter = this.getAttribute('data-inv-filter');
+        bar.querySelectorAll('[data-inv-filter]').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        renderInventory(allProducts);
+      });
+    });
   }
 
   function populateSelect(id, items) {
@@ -404,6 +436,19 @@
     });
   }
 
+  // Add source form
+  var addSourceForm = document.getElementById('add-source-form');
+  if (addSourceForm) {
+    addSourceForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var name = document.getElementById('new-source').value.trim();
+      if (!name) return;
+      await fetch(API + '/api/sources', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ name: name }) });
+      document.getElementById('new-source').value = '';
+      loadLookups();
+    });
+  }
+
   // ==========================================
   // INVENTORY
   // ==========================================
@@ -418,15 +463,7 @@
   var currentInvFilter = 'all';
   var currentInvSort = { key: 'name', dir: 1 };
 
-  // Source filter buttons
-  document.querySelectorAll('[data-inv-filter]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      currentInvFilter = this.getAttribute('data-inv-filter');
-      document.querySelectorAll('[data-inv-filter]').forEach(function(b) { b.classList.remove('active'); });
-      this.classList.add('active');
-      renderInventory(allProducts);
-    });
-  });
+  // Source filter buttons are rendered dynamically in renderSourceFilters()
 
   function showInvMsg(text, isError) {
     if (!invMsg) return;

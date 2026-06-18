@@ -595,11 +595,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Source</label>
-          <select id="prod-source" class="form-input">
-            <option value="Corporate">Corporate</option>
-            <option value="Home Depot">Home Depot</option>
-            <option value="Other">Other</option>
-          </select>
+          <select id="prod-source" class="form-input"><option value="">Loading…</option></select>
         </div>
         <div class="form-group">
           <label class="form-label">Unit</label>
@@ -621,13 +617,8 @@
     </form>
   </div>
 
-  <!-- Source filter + sort bar -->
-  <div class="jobs-filter-bar">
-    <button class="jobs-filter active" data-inv-filter="all">All</button>
-    <button class="jobs-filter" data-inv-filter="Corporate">Corporate</button>
-    <button class="jobs-filter" data-inv-filter="Home Depot">Home Depot</button>
-    <button class="jobs-filter" data-inv-filter="Other">Other</button>
-  </div>
+  <!-- Source filter + sort bar (populated dynamically) -->
+  <div class="jobs-filter-bar" id="inv-source-filters"></div>
 
   <!-- Product table -->
   <div class="admin-card">
@@ -784,8 +775,8 @@
     </form>
   </div>
 
-  <!-- Categories & Units Management -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem" class="lookup-grid">
+  <!-- Categories, Units & Sources Management -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1rem" class="lookup-grid">
     <div class="admin-card" style="margin-bottom:0">
       <h3 class="admin-card-title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h8M4 18h12"/></svg>
@@ -807,6 +798,17 @@
         <button type="submit" class="btn btn-primary" style="white-space:nowrap">Add</button>
       </form>
       <ul id="unit-list" class="lookup-list"></ul>
+    </div>
+    <div class="admin-card" style="margin-bottom:0">
+      <h3 class="admin-card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Sources
+      </h3>
+      <form id="add-source-form" style="display:flex;gap:.5rem;margin-bottom:.75rem">
+        <input type="text" id="new-source" placeholder="New source…" class="form-input" style="flex:1">
+        <button type="submit" class="btn btn-primary" style="white-space:nowrap">Add</button>
+      </form>
+      <ul id="source-list" class="lookup-list"></ul>
     </div>
   </div>
 
