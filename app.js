@@ -105,6 +105,99 @@
     } catch(e) {}
   }
 
+  // --- Password visibility toggle (login) ---
+  var pwToggle = document.getElementById('pw-toggle');
+  var pwEyeShow = document.getElementById('pw-eye-show');
+  var pwEyeHide = document.getElementById('pw-eye-hide');
+  if (pwToggle) {
+    pwToggle.addEventListener('click', function() {
+      var isPassword = pw.type === 'password';
+      pw.type = isPassword ? 'text' : 'password';
+      pwEyeShow.style.display = isPassword ? 'none' : '';
+      pwEyeHide.style.display = isPassword ? '' : 'none';
+    });
+  }
+
+  // --- Change Password (topbar button) ---
+  var changePwBtn = document.getElementById('change-pw-btn');
+  if (changePwBtn) {
+    changePwBtn.addEventListener('click', showChangePwDialog);
+  }
+
+  function showChangePwDialog() {
+    var overlay = createOverlay();
+    var dialog = document.createElement('div');
+    dialog.className = 'modal-dialog';
+    dialog.innerHTML =
+      '<h3 class="modal-title">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+        ' Change Password' +
+      '</h3>' +
+      '<p class="modal-desc">Update the password for your account.</p>' +
+      '<input type="password" class="form-input modal-input" id="cpw-current" placeholder="Current password" autocomplete="current-password">' +
+      '<input type="password" class="form-input modal-input" id="cpw-new" placeholder="New password (min 4 characters)" autocomplete="new-password" style="margin-top:.5rem">' +
+      '<input type="password" class="form-input modal-input" id="cpw-confirm" placeholder="Confirm new password" autocomplete="new-password" style="margin-top:.5rem">' +
+      '<p class="modal-hint" id="cpw-error" hidden style="color:var(--color-error)"></p>' +
+      '<div class="modal-actions">' +
+        '<button class="btn btn-outline modal-cancel">Cancel</button>' +
+        '<button class="btn btn-primary" id="cpw-save">Save Password</button>' +
+      '</div>';
+    overlay.appendChild(dialog);
+
+    var currentInput = dialog.querySelector('#cpw-current');
+    var newInput = dialog.querySelector('#cpw-new');
+    var confirmInput = dialog.querySelector('#cpw-confirm');
+    var errorEl = dialog.querySelector('#cpw-error');
+    var saveBtn = dialog.querySelector('#cpw-save');
+    var cancelBtn = dialog.querySelector('.modal-cancel');
+
+    currentInput.focus();
+
+    function showError(msg) { errorEl.textContent = msg; errorEl.hidden = false; }
+    function clearError() { errorEl.hidden = true; }
+
+    saveBtn.addEventListener('click', async function() {
+      clearError();
+      var current = currentInput.value.trim();
+      var next = newInput.value.trim();
+      var confirm = confirmInput.value.trim();
+      if (!current) { showError('Please enter your current password.'); currentInput.focus(); return; }
+      if (next.length < 4) { showError('New password must be at least 4 characters.'); newInput.focus(); return; }
+      if (next !== confirm) { showError('Passwords do not match.'); confirmInput.focus(); return; }
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving…';
+      try {
+        var res = await fetch(API + '/api/users/me/password', {
+          method: 'PUT',
+          headers: apiHeaders(),
+          body: JSON.stringify({ current_password: current, new_password: next })
+        });
+        if (res.ok) {
+          removeOverlay(overlay);
+          showAdminMsg('Password updated successfully.', false);
+        } else {
+          var err = await res.json();
+          showError(err.detail || 'Could not update password.');
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Password';
+        }
+      } catch(e) {
+        showError('Connection error. Please try again.');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Password';
+      }
+    });
+
+    cancelBtn.addEventListener('click', function() { removeOverlay(overlay); });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) removeOverlay(overlay); });
+    [currentInput, newInput, confirmInput].forEach(function(input) {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') saveBtn.click();
+        if (e.key === 'Escape') cancelBtn.click();
+      });
+    });
+  }
+
   // --- Logout ---
   logoutBtn.addEventListener('click', async function() {
     if (authToken) {

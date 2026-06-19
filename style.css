@@ -1381,6 +1381,26 @@ select.form-input {
 }
 .footer-attr a:hover { color: var(--color-text-muted); text-decoration: underline; }
 
+/* ===== PASSWORD TOGGLE ===== */
+.pw-toggle {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-faint);
+  cursor: pointer;
+  padding: var(--space-1);
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-interactive);
+}
+.pw-toggle:hover { color: var(--color-text-muted); }
+.pw-toggle svg { display: block; flex-shrink: 0; }
+#pw { padding-right: calc(var(--space-4) + 28px); }
+
 /* ===== HOME PAGE ===== */
 .home-hero {
   text-align: center;

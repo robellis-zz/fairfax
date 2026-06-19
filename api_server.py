@@ -197,6 +197,10 @@ class JobUpdate(BaseModel):
     assigned_to: str | None = None
     notes: str | None = None
 
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
 
 # --- Auth ---
 sessions = {}  # token -> {username, name, role}
@@ -235,6 +239,24 @@ def login(req: LoginReq, request: Request):
 def logout(request: Request):
     token = request.headers.get("X-Auth-Token", "")
     sessions.pop(token, None)
+    return {"ok": True}
+
+
+@app.put("/api/users/me/password")
+def change_own_password(body: PasswordChange, request: Request):
+    session = require_auth(request)
+    if len(body.new_password) < 4:
+        raise HTTPException(status_code=400, detail="New password must be at least 4 characters")
+    conn = get_db()
+    cur = db_cursor(conn)
+    cur.execute("SELECT id, password_hash FROM users WHERE LOWER(username) = LOWER(%s)", (session["username"],))
+    row = cur.fetchone()
+    if not row or not check_pw(body.current_password, row["password_hash"]):
+        cur.close(); conn.close()
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    cur.execute("UPDATE users SET password_hash = %s WHERE id = %s", (hash_pw(body.new_password), row["id"]))
+    conn.commit()
+    cur.close(); conn.close()
     return {"ok": True}
 
 
