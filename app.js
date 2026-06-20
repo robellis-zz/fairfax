@@ -84,7 +84,7 @@
       ]);
       if (prodRes.ok) {
         var products = await prodRes.json();
-        var lowCount = products.filter(function(p) { return p.quantity <= p.low_stock_qty; }).length;
+        var lowCount = products.filter(isLowStock).length;
         var invStat = document.getElementById('home-inv-stat');
         if (invStat) {
           if (lowCount > 0) {
@@ -651,6 +651,19 @@
   var currentInvFilter = 'all';
   var currentInvSort = { key: 'name', dir: 1 };
 
+  // A product is "low" only if a minimum is actually set (> 0). If the
+  // minimum is 0, having 0 on hand is intentional, not a shortage.
+  function isLowStock(p) {
+    return p.low_stock_qty > 0 && p.quantity <= p.low_stock_qty;
+  }
+
+  // Status isn't a real field on the product, so give the sorter a value
+  // for it: low-stock items sort first (0) when ascending.
+  function getInvSortValue(p, key) {
+    if (key === 'status') return isLowStock(p) ? 0 : 1;
+    return p[key];
+  }
+
   // Source filter buttons are rendered dynamically in renderSourceFilters()
 
   function showInvMsg(text, isError) {
@@ -691,7 +704,7 @@
   function renderInventory(products) {
     if (!invTableBody) return;
     // Stats (always from full list)
-    var low = products.filter(function(p) { return p.quantity <= p.low_stock_qty; }).length;
+    var low = products.filter(isLowStock).length;
     if (invStats) {
       invStats.innerHTML =
         '<div class="stat-card"><span class="stat-num">' + products.length + '</span><span class="stat-label">Products</span></div>' +
@@ -707,14 +720,14 @@
 
     // Sort
     filtered.sort(function(a, b) {
-      var av = a[currentInvSort.key], bv = b[currentInvSort.key];
+      var av = getInvSortValue(a, currentInvSort.key), bv = getInvSortValue(b, currentInvSort.key);
       if (typeof av === 'string') av = av.toLowerCase();
       if (typeof bv === 'string') bv = bv.toLowerCase();
       return av < bv ? -currentInvSort.dir : av > bv ? currentInvSort.dir : 0;
     });
 
     // Update sort indicators
-    var sortLabels = { name: 'Product', source: 'Source', category: 'Category', quantity: 'Quantity' };
+    var sortLabels = { name: 'Product', source: 'Source', category: 'Category', quantity: 'Quantity', status: 'Status' };
     document.querySelectorAll('.inv-sort').forEach(function(th) {
       var key = th.getAttribute('data-sort');
       th.textContent = (sortLabels[key] || key) +
@@ -728,7 +741,7 @@
 
     invTableBody.innerHTML = '';
     filtered.forEach(function(p) {
-      var isLow = p.quantity <= p.low_stock_qty;
+      var isLow = isLowStock(p);
       var srcColor = SOURCE_COLORS[p.source] || '#9ca3af';
       var tr = document.createElement('tr');
       tr.innerHTML =
@@ -895,7 +908,7 @@
       var products = await res.json();
       var now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
       var rows = products.map(function(p) {
-        var status = p.quantity <= p.low_stock_qty ? '⚠ LOW' : 'OK';
+        var status = isLowStock(p) ? '⚠ LOW' : 'OK';
         return '<tr><td>' + esc(p.name) + '</td><td>' + esc(p.category) + '</td><td>' + p.quantity + ' ' + esc(p.unit) + '</td><td>' + status + '</td></tr>';
       }).join('');
       var html = '<html><head><title>Inventory Snapshot</title><style>body{font-family:sans-serif;padding:2rem}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:.5rem .75rem;text-align:left}th{background:#f3f4f6}h2{margin-bottom:.25rem}p{color:#6b7280;margin:0 0 1rem}</style></head><body><h2>Inventory Snapshot — GF Fairfax</h2><p>' + now + '</p><table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table></body></html>';
