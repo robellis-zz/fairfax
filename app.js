@@ -651,10 +651,10 @@
   var currentInvFilter = 'all';
   var currentInvSort = { key: 'name', dir: 1 };
 
-  // A product is "low" only if a minimum is actually set (> 0). If the
-  // minimum is 0, having 0 on hand is intentional, not a shortage.
+  // A product is "low" only when you have less than the minimum you set.
+  // Being exactly at the minimum (e.g. need 1, have 1) counts as OK.
   function isLowStock(p) {
-    return p.low_stock_qty > 0 && p.quantity <= p.low_stock_qty;
+    return p.quantity < p.low_stock_qty;
   }
 
   // Status isn't a real field on the product, so give the sorter a value
